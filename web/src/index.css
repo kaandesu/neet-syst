@@ -1,0 +1,142 @@
+@import 'tailwindcss';
+@import '@xyflow/react/dist/style.css';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface-2: #f1eee7;
+  --ink: #1d1b18;
+  --muted: #6f6a61;
+  --line: #e4dfd5;
+  --accent: #5b4fe0;
+  --accent-soft: #ebe8ff;
+  --accent-ink: #ffffff;
+  --good: #1f9d63;
+  --good-soft: #e1f5ea;
+  --warn: #d48806;
+  --warn-soft: #fdf1d9;
+  --bad: #d64545;
+  --bad-soft: #fde6e4;
+  --canvas: #fbfaf7;
+  --grid: #e8e3d9;
+  --shadow: 0 1px 2px rgb(29 27 24 / 0.06), 0 4px 16px rgb(29 27 24 / 0.06);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #15141a;
+  --surface: #1e1d25;
+  --surface-2: #26252f;
+  --ink: #f2f0ea;
+  --muted: #a39f97;
+  --line: #34323d;
+  --accent: #8b80ff;
+  --accent-soft: #2c2a4a;
+  --accent-ink: #120f2a;
+  --good: #3ccf8e;
+  --good-soft: #17352a;
+  --warn: #f0b13d;
+  --warn-soft: #3b2f15;
+  --bad: #ff6b6b;
+  --bad-soft: #3d1d1f;
+  --canvas: #18171e;
+  --grid: #2a2933;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-canvas: var(--canvas);
+  --shadow-card: var(--shadow);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* React Flow theming */
+.react-flow {
+  --xy-background-color: var(--canvas);
+  --xy-edge-stroke: var(--muted);
+  --xy-edge-stroke-selected: var(--accent);
+  --xy-connectionline-stroke: var(--accent);
+  --xy-handle-background-color: var(--surface);
+  --xy-handle-border-color: var(--muted);
+  --xy-controls-button-background-color: var(--surface);
+  --xy-controls-button-color: var(--ink);
+  --xy-controls-button-border-color: var(--line);
+  --xy-controls-button-background-color-hover: var(--surface-2);
+}
+
+.react-flow__handle {
+  width: 12px;
+  height: 12px;
+  border-width: 2px;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.react-flow__node:hover .react-flow__handle,
+.react-flow__handle.connectingfrom,
+.react-flow__handle.connectingto,
+.connecting .react-flow__handle {
+  opacity: 1;
+}
+.react-flow__node-zone,
+.react-flow__node-ghost {
+  pointer-events: none !important;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 45%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 14px transparent;
+  }
+}
+.pulse-ring {
+  animation: pulse-ring 1.4s ease-out infinite;
+}
+
+@keyframes ghost-breathe {
+  50% {
+    opacity: 0.55;
+  }
+}
+.ghost-breathe {
+  animation: ghost-breathe 1.6s ease-in-out infinite;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
