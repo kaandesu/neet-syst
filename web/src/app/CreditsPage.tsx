@@ -4,6 +4,8 @@ import { Button } from '@/ui/Button'
 
 export function CreditsPage() {
   const reset = useProgress((s) => s.resetProgress)
+  const devMode = useProgress((s) => s.devMode)
+  const setDevMode = useProgress((s) => s.setDevMode)
   return (
     <div className="min-h-full">
       <AppHeader />
@@ -37,6 +39,15 @@ export function CreditsPage() {
         <section className="space-y-2 rounded-2xl bg-surface p-4 ring-1 ring-line">
           <h2 className="font-bold">Your data</h2>
           <p className="text-sm text-muted">Progress and timelines are stored only in this browser.</p>
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-surface-2 px-3 py-2.5">
+            <input type="checkbox" checked={devMode} onChange={(e) => setDevMode(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--accent)]" />
+            <span>
+              <span className="block text-sm font-bold">Debug mode</span>
+              <span className="block text-[13px] text-muted">
+                Opens every chapter, episode, section, shift and incident, offers every block, and adds a “Skip section” button. Your progress isn’t changed; turn it off to go back.
+              </span>
+            </span>
+          </label>
           <Button
             variant="secondary"
             size="sm"
