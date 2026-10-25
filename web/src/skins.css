@@ -394,8 +394,8 @@
   height: 6px;
   background: repeating-linear-gradient(45deg, #ffb000 0 8px, #1d1d1d 8px 16px);
 }
-[data-skin='factory'] .vn-dock .text-\[15px\] {
-  font-size: 19px;
+[data-skin='factory'] .vn-dock .vn-line {
+  font-size: 21px;
   line-height: 1.35;
 }
 [data-skin='factory'] .vn-portrait {
@@ -416,7 +416,7 @@
 }
 [data-skin='factory'] .vn-nameplate {
   font-family: var(--font-pixel-h);
-  font-size: 9px;
+  font-size: 10px;
   font-size-adjust: none;
   font-weight: 400;
   text-transform: uppercase;

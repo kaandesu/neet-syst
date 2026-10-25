@@ -91,24 +91,24 @@ export function Dock({
   const face = mood ?? (reply?.speaker === speaker ? reply.mood : undefined)
   return (
     <div className="vn-dock relative z-40 shrink-0 border-t border-line bg-surface">
-      <div className="mx-auto flex max-w-5xl items-start gap-4 px-4 pt-3 pb-3">
-        <Portrait speaker={speaker} mood={face} size={84} className="-mt-9" />
+      <div className="mx-auto flex max-w-5xl items-start gap-5 px-5 pt-4 pb-5">
+        <Portrait speaker={speaker} mood={face} size={120} className="-mt-14" />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="vn-nameplate rounded-md bg-accent px-2 py-0.5 text-[12px] font-bold text-accent-ink">{who.name}</span>
-            <span className="text-[12px] text-muted">{who.role}</span>
+            <span className="vn-nameplate rounded-md bg-accent px-2.5 py-0.5 text-[13px] font-bold text-accent-ink">{who.name}</span>
+            <span className="text-[13px] text-muted">{who.role}</span>
             {kicker && <span className="ml-1 text-[11px] font-bold tracking-wider text-accent uppercase">{kicker}</span>}
           </div>
-          <div className="mt-1.5 max-h-[30vh] overflow-y-auto pr-1 text-[15px] leading-relaxed scrollbar-thin">{children}</div>
+          <div className="vn-line mt-2 max-h-[34vh] overflow-y-auto pr-1 text-[16.5px] leading-relaxed scrollbar-thin">{children}</div>
           <AnimatePresence>
             {reply?.speaker && (
               <motion.div
                 key={reply.text}
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-2 flex items-start gap-2 rounded-xl bg-surface-2 px-3 py-2 text-[13.5px] leading-relaxed"
+                className="mt-2 flex items-start gap-2 rounded-xl bg-surface-2 px-3 py-2 text-[14.5px] leading-relaxed"
               >
-                {reply.speaker !== speaker && <Portrait speaker={reply.speaker} mood={reply.mood} size={28} className="rounded-lg" />}
+                {reply.speaker !== speaker && <Portrait speaker={reply.speaker} mood={reply.mood} size={34} className="rounded-lg" />}
                 <div className="min-w-0">
                   <span className="mr-1 font-bold">{SPEAKERS[reply.speaker].name}:</span>
                   <RichText text={reply.text} />
