@@ -32,6 +32,12 @@ export const scriptedMentor: MentorSource = {
         ]
       case 'disconnect':
         return [...own, 'Click the arrow line itself to select it. A red ✕ appears; click it, or press Delete.']
+      case 'api':
+        return [
+          ...own,
+          'Press **Check my API**: every ✗ explains what’s missing.',
+          'Paths name things (`/v1/urls`), the method says what to do (`POST` creates, `GET` reads). The toggles on each row are the promises it makes.',
+        ]
       case 'configure':
         return [
           ...own,

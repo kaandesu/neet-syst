@@ -28,7 +28,7 @@ jobs:
       - run: npm ci
       # Served from the custom domain root, so the default base (/) is right.
       - run: npm run build
-      # Serve the SPA for deep links like /neet-syst/sandbox.
+      # Serve the SPA for deep links like /sandbox.
       - run: cp dist/index.html dist/404.html
       - uses: peaceiris/actions-gh-pages@v4
         with:

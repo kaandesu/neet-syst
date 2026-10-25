@@ -17,6 +17,8 @@ export function describeStep(step: Step | undefined, answer?: StepAnswer): strin
       return `Connected ${nm(step.from)} → ${nm(step.to)}`
     case 'disconnect':
       return `Removed ${nm(step.from)} → ${nm(step.to)}`
+    case 'api':
+      return 'Designed the API'
     case 'configure':
       return step.label ? `Named it ${step.label}` : `Sized ${BLOCKS[step.block].short}`
     case 'reason': {

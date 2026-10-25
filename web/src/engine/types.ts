@@ -1,3 +1,5 @@
+import type { ApiRule } from './api/rules'
+
 // Core domain types shared by the simulator, lesson runner, timeline and UI.
 
 export type BlockId =
@@ -24,6 +26,23 @@ export type Tier = 's' | 'm' | 'l'
 
 export type RegionId = 'na' | 'eu'
 
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+
+/** One route a service exposes, with the promises it makes to callers. */
+export interface Endpoint {
+  method: HttpMethod
+  /** Path with `{param}` placeholders, e.g. `/v1/urls/{code}`. */
+  path: string
+  /** Accepts an Idempotency-Key header, so a retried call runs only once. */
+  idempotencyKey?: boolean
+  /** Returns one page at a time (cursor or limit). */
+  paginated?: boolean
+  /** Caller must be logged in. */
+  auth?: boolean
+  /** Each caller gets a request budget; extra calls get 429 Too Many Requests. */
+  rateLimited?: boolean
+}
+
 /** A node placed on the canvas. */
 export interface DNode {
   id: string
@@ -38,6 +57,8 @@ export interface DNode {
   label?: string
   /** Service only: how big a machine it runs on. */
   tier?: Tier
+  /** Service only: the endpoints it exposes. */
+  api?: Endpoint[]
 }
 
 export interface DEdge {
@@ -87,6 +108,10 @@ export interface ScenarioPhase {
   /** Users are logged in, so web servers need to know their session. */
   sessions?: boolean
   failures?: NodeSelector[]
+  /** Scraper/bot requests per second on top of `rps`. Rate limits turn them away at the door. */
+  botRps?: number
+  /** Share of writes that clients retry after a timeout. Without idempotency keys they run twice. */
+  retryShare?: number
 }
 
 export interface Scenario {
@@ -102,6 +127,10 @@ export type Goal =
   | { kind: 'queueStable' }
   /** Box budget: at most this many blocks, not counting the users. */
   | { kind: 'maxBlocks'; value: number }
+  /** No write ran twice because a client retried it. */
+  | { kind: 'noDuplicates' }
+  /** A rule about the endpoints on one service, e.g. "POST /urls takes an Idempotency-Key". */
+  | { kind: 'api'; node: string; rule: ApiRule }
 
 export type NodeStatus = 'idle' | 'ok' | 'warm' | 'hot' | 'down'
 
@@ -129,6 +158,10 @@ export interface PhaseResult {
   nodes: Record<string, NodeResult>
   edges: Record<string, number>
   warnings: string[]
+  /** Writes per second that ran twice because a retry wasn't idempotent. */
+  duplicateRps?: number
+  /** Bot requests per second turned away by rate limits. */
+  rejectedRps?: number
 }
 
 export interface SimRun {

@@ -24,6 +24,7 @@ import {
   roleOf,
   type Role,
 } from './specs'
+import { isRateLimited, retriesAreSafe } from '../api/rules'
 
 /**
  * A steady-state flow solver. Each phase is solved independently (except for
@@ -471,8 +472,15 @@ export function solvePhase(
   const task = phase.taskRatio ?? 0
   const read = Math.max(0, 1 - write - stat - task)
   const eu = phase.euShare ?? 0
+  // Bots ride along as extra reads unless every endpoint is rate limited (then they get a cheap 429).
+  const limited = isRateLimited(design)
+  const bots = phase.botRps ?? 0
+  if (bots && limited) ctx.warnings.add(`Rate limits turned away ${Math.round(bots).toLocaleString('en-US')} bot requests/s with 429 Too Many Requests.`)
+  if (bots && !limited) ctx.warnings.add('A scraper is hammering your API, and nothing stops it: there are no rate limits.')
+  const botReads = limited ? 0 : bots
   for (const c of clients) {
     const share = phase.rps / clients.length
+    addFlow(incoming.get(c.id)!, key('na', 'read'), botReads / clients.length)
     for (const [reg, rs] of [['na', 1 - eu], ['eu', eu]] as const) {
       const f = incoming.get(c.id)!
       addFlow(f, key(reg, 'read'), share * rs * read)
@@ -585,7 +593,7 @@ export function solvePhase(
     lat.set(id, perKey)
   }
 
-  const offered = phase.rps
+  const offered = phase.rps + botReads
   let p99 = 0
   for (const c of clients) {
     const f = incoming.get(c.id)!
@@ -598,6 +606,10 @@ export function solvePhase(
   if (!clients.length) ctx.warnings.add('There are no users yet: add a Client.')
 
   const errorRate = offered > 0 ? Math.min(1, dropped / offered) : 0
+  // Clients retry writes that timed out; without idempotency keys each retry is a second order.
+  const servedWrites = phase.rps * write * (1 - errorRate)
+  const duplicateRps = phase.retryShare && !retriesAreSafe(design) ? servedWrites * phase.retryShare : 0
+  if (duplicateRps > 0) ctx.warnings.add(`${Math.round(duplicateRps).toLocaleString('en-US')} writes/s ran twice: clients retried, and the server couldn't tell it was the same request.`)
   return {
     label: phase.label,
     seconds: phase.seconds,
@@ -608,6 +620,8 @@ export function solvePhase(
     nodes,
     edges,
     warnings: [...ctx.warnings],
+    ...(duplicateRps > 0 && { duplicateRps }),
+    ...(bots && limited && { rejectedRps: bots }),
   }
 }
 

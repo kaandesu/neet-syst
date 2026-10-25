@@ -1,4 +1,5 @@
 import { ArrowLeft, Check, ChevronRight, Crosshair, FastForward, Play, FlaskConical, Lock, Monitor, NotebookPen, RotateCcw, Trophy, Undo2 } from 'lucide-react'
+import { ApiCard } from '@/features/api/ApiCard'
 import { motion } from 'motion/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router'
@@ -376,6 +377,22 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
         return <RequirementsCard step={step} answer={answer} active onDone={complete} onMiss={miss} />
       case 'estimate':
         return <EstimateCard step={step} answer={answer} active onDone={complete} onMiss={miss} />
+      case 'api': {
+        const node = run.design.nodes.find((n) => n.id === step.node)
+        return (
+          <ApiCard
+            key={stepIndex}
+            step={step}
+            api={node?.api ?? []}
+            serviceName={node?.label || step.node}
+            answer={answer}
+            active
+            onChange={(api) => setDesign(key, setNodeProps(run.design, step.node, { api }))}
+            onDone={complete}
+            onMiss={miss}
+          />
+        )
+      }
       default:
         return null
     }

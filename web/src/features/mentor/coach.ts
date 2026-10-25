@@ -55,6 +55,8 @@ export function whyText(c: CoachCtx): string | null {
     }
     case 'connect':
       return `Requests only travel along arrows. Until **${name(s.from)} → ${name(s.to)}** exists, the ${name(s.to)} never sees a single request.`
+    case 'api':
+      return '**Why does the API matter?** It’s the one part other teams and apps build against. Boxes can change behind it any time; a published endpoint is a promise you keep for years.'
     case 'configure':
       return s.tier
         ? `**Why resize?** A bigger machine handles more work with no new wiring. But it is still *one* machine: it costs more and it can still die.`

@@ -83,7 +83,7 @@ export function removeEdgesBetween(design: Design, from: BlockMatch, to: BlockMa
 }
 
 /** Names a block or resizes a service. An empty label clears it. */
-export function setNodeProps(design: Design, id: string, props: Partial<Pick<DNode, 'label' | 'tier'>>): Design {
+export function setNodeProps(design: Design, id: string, props: Partial<Pick<DNode, 'label' | 'tier' | 'api'>>): Design {
   return {
     ...design,
     nodes: design.nodes.map((n) => {
@@ -92,6 +92,7 @@ export function setNodeProps(design: Design, id: string, props: Partial<Pick<DNo
       if (!next.label?.trim()) delete next.label
       else next.label = next.label.trim().slice(0, MAX_LABEL)
       if (!next.tier) delete next.tier
+      if (!next.api?.length) delete next.api
       return next
     }),
   }
@@ -178,6 +179,8 @@ export function idealAnswer(step: Step, entry?: Pick<AutoPlayLog, 'passed' | 'er
       return { t: 'requirements', picks: step.items.map((i) => i.inScope), attempts: 1 }
     case 'estimate':
       return { t: 'estimate', value: step.answer, attempts: 1 }
+    case 'api':
+      return { t: 'api', attempts: 1 }
     case 'simulate':
       return { t: 'simulate', passed: !!entry?.passed, errorRate: entry?.errorRate ?? 0, p99Ms: entry?.p99Ms ?? 0 }
     default:
@@ -203,6 +206,7 @@ export function autoPlay(section: Section, forkPick = 0): AutoPlayLog[] {
     if (step.t === 'connect') design = autoConnect(design, step)
     if (step.t === 'disconnect') design = removeEdgesBetween(design, step.from, step.to)
     if (step.t === 'configure') design = autoConfigure(design, step)
+    if (step.t === 'api') design = setNodeProps(design, step.node, { api: step.solution })
     if (step.t === 'fork') design = applyPatch(design, step.options[Math.min(forkPick, step.options.length - 1)].patch)
     if (step.t === 'simulate') {
       if (step.solution) design = step.solution

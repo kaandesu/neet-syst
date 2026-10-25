@@ -1,5 +1,6 @@
 import type { Mood, SpeakerId } from '../mentor/reactions'
-import type { BlockId, DNode, Design, Goal, RegionZone, Scenario, Tier } from '../types'
+import type { ApiRule } from '../api/rules'
+import type { BlockId, DNode, Design, Endpoint, Goal, RegionZone, Scenario, Tier } from '../types'
 
 /** Accept one block or any of several (e.g. "a database" = SQL or NoSQL). */
 export type BlockMatch = BlockId | BlockId[]
@@ -21,7 +22,7 @@ export interface WhatIf {
 export type DesignPatch = {
   addNodes?: DNode[]
   addEdges?: { from: string; to: string }[]
-  setProps?: { id: string; props: Partial<Pick<DNode, 'sticky' | 'label' | 'tier'>> }[]
+  setProps?: { id: string; props: Partial<Pick<DNode, 'sticky' | 'label' | 'tier' | 'api'>> }[]
 }
 
 export type Step =
@@ -40,6 +41,11 @@ export type Step =
    * `tier` must match, and an unsized service counts as medium.
    */
   | { t: 'configure'; block: BlockId; label?: string; tier?: Tier; text: string; hints?: string[] }
+  /**
+   * Write the endpoints for service `node`, graded by `rules`. The learner edits the node's API directly,
+   * so what they write stays on the service for later steps. `solution` is used by the content tests.
+   */
+  | { t: 'api'; node: string; text: string; rules: ApiRule[]; solution: Endpoint[]; hints?: string[] }
   /** Pick the right reason. Wrong answers explain why they're tempting. */
   | {
       t: 'reason'
@@ -129,6 +135,7 @@ export type StepAnswer =
   | { t: 'fork'; optionId: string }
   | { t: 'requirements'; picks: boolean[]; attempts: number }
   | { t: 'estimate'; value: number; attempts: number }
+  | { t: 'api'; attempts: number }
   | {
       t: 'simulate'
       passed: boolean

@@ -9,7 +9,7 @@ export type Theme = 'system' | 'light' | 'dark'
 /** Whole-app look. `current` follows the light/dark theme; the others bring their own palette. */
 export type Skin = 'current' | 'pixel' | 'factory'
 
-export type MissKind = 'reason' | 'estimate' | 'requirements' | 'predict' | 'diagnose' | 'hint' | 'whatif'
+export type MissKind = 'reason' | 'estimate' | 'requirements' | 'predict' | 'diagnose' | 'hint' | 'whatif' | 'api'
 
 /** A step the learner struggled with, for the review page. */
 export interface Miss {

@@ -1,4 +1,5 @@
 import type { Design, Goal, SimRun } from '../types'
+import { evaluateApi, ruleLabel } from '../api/rules'
 import { roleOf } from './specs'
 
 export interface GoalResult {
@@ -26,6 +27,10 @@ export function goalLabel(goal: Goal): string {
       return 'Workers keep up with the queue'
     case 'maxBlocks':
       return `At most ${goal.value} blocks`
+    case 'noDuplicates':
+      return 'Retries never run a write twice'
+    case 'api':
+      return ruleLabel(goal.rule)
   }
 }
 
@@ -77,6 +82,15 @@ export function evaluateGoals(design: Design, run: SimRun, goals: Goal[]): GoalR
       case 'maxBlocks': {
         const n = design.nodes.filter((x) => x.block !== 'client').length
         return { goal, label, pass: n <= goal.value, detail: `${n} placed` }
+      }
+      case 'noDuplicates': {
+        const worst = Math.max(0, ...run.phases.map((p) => p.duplicateRps ?? 0))
+        return { goal, label, pass: worst === 0, detail: worst ? `${Math.round(worst)} duplicate writes/s` : 'every retry was harmless' }
+      }
+      case 'api': {
+        const node = design.nodes.find((n) => n.id === goal.node)
+        const [r] = evaluateApi(node?.api ?? [], [goal.rule])
+        return { goal, label, pass: !!node && r.pass, detail: node ? (r.why ?? 'done') : `${goal.node} is missing` }
       }
     }
   })
