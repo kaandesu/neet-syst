@@ -1,4 +1,4 @@
-import { Check, X } from 'lucide-react'
+import { Check, Eye, X } from 'lucide-react'
 import { useState } from 'react'
 import { evaluateApi, ruleLabel, type ApiRuleResult } from '@/engine/api/rules'
 import type { Step, StepAnswer } from '@/engine/lesson/types'
@@ -38,6 +38,14 @@ export function ApiCard({
     setResults(r)
     setAttempts(attempts + 1)
     if (!r.every((x) => x.pass)) onMiss?.('api')
+  }
+
+  /** Fill in the reference answer and grade it, so the learner can read it and move on. */
+  const reveal = () => {
+    onChange(step.solution)
+    setResults(evaluateApi(step.solution, step.rules))
+    setAttempts(attempts + 1)
+    onMiss?.('hint')
   }
 
   return (
@@ -83,9 +91,14 @@ export function ApiCard({
               <Check size={15} /> Ship it
             </Button>
           ) : (
-            <Button size="sm" onClick={check} disabled={!api.length}>
-              Check my API
-            </Button>
+            <>
+              <Button size="sm" onClick={check} disabled={!api.length}>
+                Check my API
+              </Button>
+              <Button size="sm" variant="ghost" onClick={reveal} title="Fill in a correct answer">
+                <Eye size={14} /> Show solution
+              </Button>
+            </>
           )}
           {passed && <span className="text-[13px] font-semibold text-good">Every check passes.</span>}
         </div>
