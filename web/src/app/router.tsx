@@ -10,11 +10,13 @@ import { SandboxPage } from '@/features/sandbox/SandboxPage'
 import { ShiftPage } from '@/features/shift/ShiftPage'
 import { UnlockOverlay } from '@/features/unlock/UnlockOverlay'
 import { ThemeSync } from '@/ui/ThemeToggle'
+import { FactoryFloor } from '@/ui/FactoryFloor'
 import { CreditsPage } from './CreditsPage'
 
 function Root() {
   return (
     <>
+      <FactoryFloor />
       <ThemeSync />
       <Outlet />
       <UnlockOverlay />
