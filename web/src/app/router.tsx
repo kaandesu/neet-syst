@@ -5,7 +5,6 @@ import { LessonPage } from '@/features/lesson/LessonPage'
 import { MapPage } from '@/features/map/MapPage'
 import { ProblemListPage } from '@/features/problems/ProblemListPage'
 import { ProblemPage } from '@/features/problems/ProblemPage'
-import { ReviewPage } from '@/features/review/ReviewPage'
 import { SandboxPage } from '@/features/sandbox/SandboxPage'
 import { ShiftPage } from '@/features/shift/ShiftPage'
 import { UnlockOverlay } from '@/features/unlock/UnlockOverlay'
@@ -32,7 +31,6 @@ export const router = createBrowserRouter([
       { path: '/problems', element: <ProblemListPage /> },
       { path: '/problems/:problemId', element: <ProblemPage /> },
       { path: '/collection', element: <CollectionPage /> },
-      { path: '/review', element: <ReviewPage /> },
       { path: '/sandbox', element: <SandboxPage /> },
       { path: '/credits', element: <CreditsPage /> },
       { path: '/design', element: <DesignPage /> },

@@ -33,7 +33,7 @@ A capstone replaces the guided steps with `requirements` and `estimate` steps, t
 - **What-ifs (`tryIt`).** Give a *wrong* `reason` option a `tryIt: WhatIf` (a design, a scenario and goals), so learners can watch that idea fail. Shared ones live in `ch1/_whatifs.ts`. A test fails if a what-if actually passes.
 - **Incidents.** These live in `ch1/incidents.ts`: one free-build `level` with a pager message, a failing replay, and a passing `solution`.
   - `due` names the lesson whose completion makes the incident appear on the map. Aim for 1–7 lessons after the concept it reviews.
-  - `reviews` lists the blocks it exercises. The review page uses this to suggest it.
+  - `reviews` lists the blocks it exercises.
   - Its palette may only use blocks unlocked by the `due` lesson.
 
 ## The mentor (scripted, no AI)

@@ -6,7 +6,6 @@ import { useProgress } from '@/store/progress'
 import { ThemeToggle } from '@/ui/ThemeToggle'
 
 export function AppHeader() {
-  const misses = useProgress((s) => Object.keys(s.misses).length)
   const link = ({ isActive }: { isActive: boolean }) =>
     cn('shrink-0 rounded-xl px-3 py-1.5 text-sm font-semibold transition', isActive ? 'bg-surface-2 text-ink' : 'text-muted hover:text-ink')
   return (
@@ -31,10 +30,6 @@ export function AppHeader() {
           </NavLink>
           <NavLink to="/sandbox" className={link}>
             Sandbox
-          </NavLink>
-          <NavLink to="/review" className={(a) => cn(link(a), 'flex items-center gap-1.5')}>
-            Review
-            {misses > 0 && <span className="rounded-full bg-warn-soft px-1.5 font-mono text-[11px] text-warn">{misses}</span>}
           </NavLink>
           <NavLink to="/credits" className={link}>
             Credits
