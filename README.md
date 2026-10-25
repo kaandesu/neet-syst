@@ -1,43 +1,136 @@
+<div align="center">
+
+<img src="web/public/neetsyst-logo.webp" alt="neet·syst logo" width="180" />
+
 # neet·syst
 
-LeetCode for system design, built to **teach** rather than to be a free-form sandbox.
+**LeetCode for system design, built to teach.**
 
-Every lesson starts with a problem your system can't handle yet: traffic grows, a database dies, users show up in Europe. You unlock **one** new building block, learn why it exists, practice it in a tiny drill, then use it to save the day in a guided level. A light simulation shows the system failing and then recovering. Every decision you make is recorded on a **branching timeline**, so you can rewind, take the other path, and compare the two.
+Your system breaks. You unlock one new building block, learn why it exists, and use it to fix things.
+No blank canvas, no 40-box diagrams, no hand-waving.
 
-## What's in v1
+[![Live app](https://img.shields.io/badge/play-neetsystem.study-FFB400?style=for-the-badge&labelColor=2b2b2b)](https://neetsystem.study)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white&labelColor=2b2b2b)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white&labelColor=2b2b2b)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white&labelColor=2b2b2b)](https://vite.dev)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-3fb950?style=for-the-badge&labelColor=2b2b2b)](#contributing)
 
-- **Chapter 1, "Scale from Zero to Millions":** 12 lessons and 2 capstones (a URL shortener and Pastebin at 10M users), plus a test-out checkpoint.
-- **Lesson structure:** each lesson runs Concept → Drill → Level.
-- **Guided canvas:** the palette only offers the blocks you've unlocked, ghost slots show where to drop them early on, and capstones are free-build.
-- **Simulation:** a deterministic steady-state flow solver that models load, latency, caches, replicas, CDN, regions, queues, sharding, sessions and chaos events.
-- **Decisions:** reasoning MCQs, design forks, scoping and estimation exercises.
-- **Mentor:** a scripted mentor panel built as a message stream, so an AI mentor can plug in later.
-- **Sandbox (`/sandbox`):** free build with only the blocks you've earned. Traffic dials appear as you unlock the blocks they matter for. The page shows your design's **breaking point** (the most req/s it takes before 1% of requests fail) and which part gives out first. You can kill any block to test failover, and **Review** flags wiring mistakes and single points of failure on the canvas. Seven open-ended challenges unlock with your blocks. **Share** copies a link that carries the whole design.
-- **Skins:** a header picker switches the whole app between Current (light/dark), NEET.SYS (pixel terminal) and Factory (pixel factory floor). The canvas follows the skin too.
-- **Progress:** stored locally. There is no backend yet; see [docs/ROADMAP.md](docs/ROADMAP.md).
+<br />
 
-## Run it
+<img src="docs/images/map.png" alt="The story map: a startup growth arc from 100 users to 10 million" width="860" />
+
+</div>
+
+<br />
+
+## Why this exists
+
+Most system design resources give you a finished diagram and ask you to memorize it. Free-form simulators go the other way: an empty canvas and sixty components, which is overwhelming when you don't yet know why a load balancer exists.
+
+neet·syst is **gated and incremental**. Every episode opens with a problem your system can't handle yet: traffic grows, a database dies, users show up in Europe. You get **one** new block, you learn the reason for it, and you watch the simulation go from failing to healthy. By the end of a chapter you've built a real architecture and know why each piece is there.
+
+## How a lesson works
+
+Every episode runs the same three-part loop:
+
+| | Part | What happens |
+|---|---|---|
+| 1 | **Concept** | A mentor briefs you in a visual-novel dialogue. Questions pop up over the board and you have to reason through them. |
+| 2 | **Drill** | A tiny, focused build. You place and wire the new block on a guided canvas, with ghost slots showing where things go. |
+| 3 | **Level** | A real scenario. Run the traffic and watch your design hold or fall over. |
+
+Every decision you make is recorded on a **branching timeline**. Rewind, take the other path, and compare the two designs side by side.
+
+## What's inside
+
+### Story: startup growth arcs
+
+Each chapter follows a startup from its first user to millions.
+
+- **Chapter 1, Scale from Zero to Millions:** 15 episodes, from "your first request" through databases, back-of-the-envelope estimation, load balancers, replication, caching, CDNs, stateless services, multi-region, queues, monitoring and sharding. It ends with two capstones (a URL shortener and Pastebin at 10M users) and a test-out checkpoint.
+- **Chapter 2, Design the API:** resources and versioning, idempotency, and pagination plus rate limits. Services carry real endpoints, and your API choices change what the simulation does (retries really do double-charge without an Idempotency-Key).
+- **Services and machine size:** rename any block, and size a service Small, Medium or Large. Learn when to scale up and when to scale out.
+
+### Shifts: boss fights
+
+Unscripted levels that open after milestone episodes. You get a starting design, every block you've earned, and 3–4 waves of back-to-back traffic. One wave is always chaos. Three stars to chase: survive every wave, stay at or under par blocks, keep worst p99 under target.
+
+<div align="center">
+<img src="docs/images/shift.png" alt="Shift: Monday Rush, a boss fight with four traffic waves" width="860" />
+</div>
+
+### Problems: reps with a point
+
+Eight standalone problems at easy, medium and hard, each with its own scenario and goals. Bakery, leaderboard, receipts, short links, bank sync and Black Friday are in.
+
+### Sandbox: free build with what you've earned
+
+Only the blocks you've unlocked are available. The page shows your design's **breaking point**, meaning the most traffic it takes before 1% of requests fail, and which block gives out first. Kill any block to test failover. **Review** flags wiring mistakes and single points of failure right on the canvas. **Share** copies a link that carries the entire design.
+
+<div align="center">
+<img src="docs/images/sandbox.png" alt="Sandbox showing a design that breaks at 2,000 requests per second, with the first server to give out highlighted" width="860" />
+</div>
+
+### The simulation
+
+A deterministic steady-state flow solver, so the same design always gives the same answer. It models load, latency, caches, replicas, CDNs, regions, queues, sharding, sessions, API behaviour and chaos events. It's pure TypeScript with no UI imports, and every lesson is auto-played in the test suite.
+
+## Quick start
 
 ```bash
-cd web
+git clone https://github.com/kaandesu/neet-syst.git
+cd neet-syst/web
 npm install
 npm run dev        # http://localhost:5173
-npm test           # engine + content tests (every lesson auto-played)
-npm run e2e        # Playwright smoke test (needs: npx playwright install chromium-headless-shell)
-npm run build
 ```
 
-**Dev mode (for testing):** tick the "Dev mode" box on the map (dev builds), or open `/?dev=1` in any build (`/?dev=0` turns it off). Every lesson and section opens, and a **Skip section** button in the lesson header auto-completes the current section like an ideal learner.
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm test` | Engine and content tests (every lesson is auto-played end to end) |
+| `npm run e2e` | Playwright smoke tests (first run: `npx playwright install chromium-headless-shell`) |
+| `npm run typecheck` | `tsc -b` |
+| `npm run lint` | oxlint |
+| `npm run build` | Type-check and production build |
 
-## Layout
+**Dev mode:** open `/?dev=1` (or tick "Dev mode" on the map in dev builds) and every lesson opens, with a **Skip section** button that completes the current section like an ideal learner. `/?dev=0` turns it off.
+
+## Project layout
 
 ```
 web/src/
-  engine/     pure TS: sim solver + goals, lesson runner, timeline tree (unit tested)
-  content/    block catalog + chapter lessons (typed)
-  features/   canvas, mentor, timeline, lesson page, map, collection, unlock
-  store/      zustand stores (progress, runs) persisted via repo/
-docs/         ROADMAP.md (PocketBase + Go, AI mentor), CONTENT_GUIDE.md
+  engine/     pure TS: sim solver + goals, lesson runner, API rules, timeline tree (unit tested)
+  content/    block catalog, chapters, problems, shifts (all typed data)
+  features/   canvas, mentor, timeline, lesson page, map, collection, sandbox, shift, api
+  store/      zustand stores (progress, runs) persisted through repo/
+  repo/       storage interface, so a real backend can drop in later
+docs/         ROADMAP.md, CONTENT_GUIDE.md
 ```
 
-Credits: some content is adapted from [The System Design Primer](https://github.com/donnemartin/system-design-primer) (CC BY 4.0). See the in-app Credits page.
+**Stack:** React 19, TypeScript, Vite, Tailwind CSS 4, [React Flow](https://reactflow.dev) for the canvas, Zustand, Motion, Vitest and Playwright.
+
+## Roadmap
+
+Progress lives in your browser's localStorage for now. Next up:
+
+- [ ] Case studies (classic interview problems) built on chapters 1 and 2
+- [ ] Accounts and sync (PocketBase)
+- [ ] AI mentor that sees your design and your timeline
+- [ ] Agentic interviewer mode: "what happens if the cache dies?"
+- [ ] Score histograms for capstones (p99, block count, cost)
+
+The full plan is in [docs/ROADMAP.md](docs/ROADMAP.md).
+
+## Contributing
+
+Contributions are welcome, and **content is the easiest place to start.** Lessons, problems and shifts are typed data files, not code. Read the [Content Guide](docs/CONTENT_GUIDE.md) to add an episode, a problem or a shift.
+
+1. Fork and create a branch.
+2. `npm test` and `npm run typecheck` should pass. The suite auto-plays every lesson, so a broken lesson fails CI.
+3. Open a PR describing what you changed and why.
+
+Found a lesson that's wrong or confusing? [Open an issue](https://github.com/kaandesu/neet-syst/issues). Teaching mistakes count as bugs.
+
+## Credits
+
+Some content is adapted from [The System Design Primer](https://github.com/donnemartin/system-design-primer) by Donne Martin, licensed under [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/). The in-app Credits page has the full list.
