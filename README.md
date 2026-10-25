@@ -19,7 +19,15 @@ No blank canvas, no 40-box diagrams, no hand-waving.
 
 <a href="docs/video/neet-syst-intro.mp4"><img src="docs/video/preview.gif" alt="neet·syst intro film: the logo reveal, then a load balancer wired in and the run going from failing to healthy. Click to watch the full minute." width="860" /></a>
 
-<sub>▶ <a href="docs/video/neet-syst-intro.mp4"><b>Watch the 1-minute intro</b></a></sub>
+<details>
+  <summary><b>Watch the 1-minute intro</b> (with sound)</summary>
+
+  <br />
+
+  https://github.com/user-attachments/assets/e4d4feae-72d4-47d4-9223-1e9fa4aeb5a6
+
+  </details>
+
 
 <sub><b>Story</b> · <b>Shifts</b> · <b>API design</b> · <b>Case studies</b> · <b>Problems</b> · <b>Sandbox</b></sub>
 
