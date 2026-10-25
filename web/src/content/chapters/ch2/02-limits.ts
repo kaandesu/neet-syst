@@ -66,10 +66,12 @@ export const limits: Lesson = {
             },
           ],
         },
+        { t: 'idea', idea: 'cursor-pagination' },
         {
           t: 'say',
-          text: 'Second rule: every caller gets a **budget**, like 100 requests a minute. Past it, the server answers `429 Too Many Requests` without doing any real work. That’s a **rate limit**.',
+          text: 'Second rule: one caller must never use up what everyone shares.',
         },
+        { t: 'idea', idea: 'rate-limit' },
       ],
     },
     {

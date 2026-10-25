@@ -1,3 +1,4 @@
+import type { IdeaId } from '@/content/ideas'
 import type { Mood, SpeakerId } from '../mentor/reactions'
 import type { ApiRule } from '../api/rules'
 import type { BlockId, DNode, Design, Endpoint, Goal, RegionZone, Scenario, Tier } from '../types'
@@ -30,6 +31,8 @@ export type DesignPatch = {
 export type Step =
   /** A line from the mentor, or from another member of the cast. */
   | { t: 'say'; text: string; speaker?: SpeakerId; mood?: Mood }
+  /** Introduces an idea (an API rule, a protocol trick) with its card; it joins the Ideas shelf in the Collection. */
+  | { t: 'idea'; idea: IdeaId }
   /** Introduces a building block with its illustrated card. */
   | { t: 'concept'; block: BlockId; text?: string }
   /** Drag a block onto the canvas until there are `count` of them. */

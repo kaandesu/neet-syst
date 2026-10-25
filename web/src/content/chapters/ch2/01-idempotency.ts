@@ -54,7 +54,52 @@ export const idempotency: Lesson = {
         },
         {
           t: 'say',
-          text: 'An operation is **idempotent** if doing it twice has the same effect as doing it once. `GET`, `PUT` and `DELETE` already are: deleting order 42 twice still leaves it deleted. `POST` creates something new each time, so it needs a key.',
+          text: 'An operation is **idempotent** if doing it twice has the same effect as doing it once. `GET`, `PUT` and `DELETE` already are: deleting order 42 twice still leaves it deleted. `POST` creates something new each time, so it needs a key. Here’s how a key works, step by step.',
+        },
+        { t: 'idea', idea: 'idempotency-key' },
+        {
+          t: 'reason',
+          question: 'When should the app make a new Idempotency-Key?',
+          options: [
+            {
+              id: 'per-action',
+              text: 'Once, when the user taps **Pay**, then reuse it for every retry of that payment',
+              correct: true,
+              why: 'Yes. One key per *intended* action. Every retry of that action carries the same key, so the server can recognise it.',
+            },
+            {
+              id: 'per-request',
+              text: 'A fresh key for every request, retries included',
+              why: 'Then every retry looks brand new to the server, and you’re back to double charges. The key must survive the retry.',
+            },
+            {
+              id: 'per-install',
+              text: 'One key per app install, reused forever',
+              why: 'Then the second, *different* payment would get the first payment’s saved answer. The user pays once and buys twice.',
+            },
+          ],
+        },
+        {
+          t: 'reason',
+          question: 'A retry arrives with key `k_7f3a`, but the amount changed from $20 to $200. What should the server do?',
+          options: [
+            {
+              id: 'reject',
+              text: 'Reject it (422): that key already belongs to a different request',
+              correct: true,
+              why: 'Right. A key stands for one exact request. Reusing it with a different body is a client bug, and guessing which one was meant could charge the wrong amount.',
+            },
+            {
+              id: 'replay',
+              text: 'Replay the saved $20 answer',
+              why: 'The client asked for $200 and is told it succeeded. Now the two sides disagree about what happened.',
+            },
+            {
+              id: 'charge',
+              text: 'Charge the new $200',
+              why: 'Then the key protects nothing: any retry with a slightly different body sneaks through as a second charge.',
+            },
+          ],
         },
       ],
     },

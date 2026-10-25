@@ -1,6 +1,7 @@
 import { ArrowLeft, Check, ChevronRight, Crosshair, FastForward, Play, FlaskConical, Lock, Monitor, NotebookPen, RotateCcw, Trophy, Undo2 } from 'lucide-react'
 import { ApiCard } from '@/features/api/ApiCard'
 import { RevealCard } from '@/features/cases/RevealCard'
+import { IdeaCard } from '@/features/ideas/IdeaCard'
 import { motion } from 'motion/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router'
@@ -371,6 +372,16 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
     switch (step?.t) {
       case 'concept':
         return <ConceptStepCard step={step} active onDone={() => complete()} />
+      case 'idea':
+        return (
+          <div>
+            <IdeaCard idea={step.idea} />
+            {/* No autoFocus: focusing the button would scroll this tall card to its bottom. */}
+            <Button size="sm" className="mt-3" onClick={() => complete()}>
+              Got it <ChevronRight size={16} />
+            </Button>
+          </div>
+        )
       case 'reason':
         return <ReasonCard step={step} answer={answer} active onDone={complete} onMiss={miss} onTryIt={tryIt} />
       case 'fork':

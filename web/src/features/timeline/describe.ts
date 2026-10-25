@@ -1,4 +1,5 @@
 import { BLOCKS } from '@/content/blocks'
+import { IDEAS } from '@/content/ideas'
 import type { BlockMatch, Step, StepAnswer } from '@/engine/lesson/types'
 
 const nm = (m: BlockMatch) => (Array.isArray(m) ? 'database' : BLOCKS[m].short)
@@ -17,6 +18,8 @@ export function describeStep(step: Step | undefined, answer?: StepAnswer): strin
       return `Connected ${nm(step.from)} → ${nm(step.to)}`
     case 'disconnect':
       return `Removed ${nm(step.from)} → ${nm(step.to)}`
+    case 'idea':
+      return `Learned ${IDEAS[step.idea].name}`
     case 'reveal':
       return 'Compared with the experts'
     case 'api':

@@ -42,8 +42,9 @@ export const resources: Lesson = {
         },
         {
           t: 'say',
-          text: 'An **API** is the contract they code against. The common style on the web is **REST**: every *thing* gets a path (`/orders/42`), and the HTTP **method** says what to do with it: `GET` reads, `POST` creates, `PUT`/`PATCH` change, `DELETE` removes.',
+          text: 'An **API** is the contract they code against. The common style on the web is **REST**.',
         },
+        { t: 'idea', idea: 'rest' },
         {
           t: 'reason',
           question: 'Which endpoint should cancel order 42?',
@@ -130,6 +131,7 @@ export const resources: Lesson = {
             },
           ],
         },
+        { t: 'idea', idea: 'versioning' },
         {
           t: 'api',
           node: 'orders',

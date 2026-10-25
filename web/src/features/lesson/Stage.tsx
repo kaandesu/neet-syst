@@ -1,4 +1,5 @@
 import { Check, CircleDashed, CircleHelp, Crosshair, Eye, LifeBuoy, NotebookPen, Send, X } from 'lucide-react'
+import { IDEAS } from '@/content/ideas'
 import { AnimatePresence, motion } from 'motion/react'
 import { useState, type ReactNode } from 'react'
 import { BLOCKS } from '@/content/blocks'
@@ -21,7 +22,7 @@ export interface FeedItem {
 }
 
 /** Steps that stop the lesson until the learner answers them. They open as a card over the canvas. */
-export const isBlocking = (s: Step | undefined) => !!s && (s.t === 'concept' || s.t === 'reason' || s.t === 'fork' || s.t === 'requirements' || s.t === 'estimate' || s.t === 'api' || s.t === 'reveal')
+export const isBlocking = (s: Step | undefined) => !!s && (s.t === 'concept' || s.t === 'idea' || s.t === 'reason' || s.t === 'fork' || s.t === 'requirements' || s.t === 'estimate' || s.t === 'api' || s.t === 'reveal')
 
 const CHIP_ICON: Record<ChipId, typeof Eye> = { why: CircleHelp, show: Eye, stuck: LifeBuoy }
 
@@ -142,6 +143,7 @@ export function Dock({
 
 const BLOCKING_LABEL: Record<string, string> = {
   concept: 'New building block',
+  idea: 'New idea',
   reason: 'Question',
   fork: 'Design decision',
   requirements: 'Scope the problem',
@@ -179,16 +181,16 @@ export function QuestionModal({
         initial={{ scale: 0.92, y: 12 }}
         animate={{ scale: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-        className={cn('vn-modal flex max-h-full w-full flex-col', step.t === 'api' || step.t === 'reveal' ? 'max-w-3xl' : 'max-w-xl', 'overflow-hidden rounded-3xl bg-surface shadow-card')}
+        className={cn('vn-modal flex max-h-full w-full flex-col', step.t === 'api' || step.t === 'reveal' || step.t === 'idea' ? 'max-w-3xl' : 'max-w-xl', 'overflow-hidden rounded-3xl bg-surface shadow-card')}
       >
         <div className={cn('vn-modal-head flex items-center gap-3 px-5 py-3', concept ? 'bg-good-soft' : 'bg-accent-soft')}>
           <Portrait speaker={speaker} mood={mood} size={52} />
           <div className="min-w-0 flex-1">
             <div className={cn('text-[11px] font-bold tracking-wider uppercase', concept ? 'text-good' : 'text-accent')}>
-              {concept ? `★ ${BLOCKING_LABEL.concept}: ${BLOCKS[step.block].name}` : BLOCKING_LABEL[step.t]}
+              {concept ? `★ ${BLOCKING_LABEL.concept}: ${BLOCKS[step.block].name}` : step.t === 'idea' ? `★ ${BLOCKING_LABEL.idea}: ${IDEAS[step.idea].name}` : BLOCKING_LABEL[step.t]}
             </div>
             <div className="text-[13px] text-muted">
-              {who.name} {concept ? 'wants you to meet a new block.' : step.t === 'reveal' ? 'shows you what was actually built.' : 'needs an answer before you go on.'}
+              {who.name} {concept ? 'wants you to meet a new block.' : step.t === 'reveal' ? 'shows you what was actually built.' : step.t === 'idea' ? 'wants to show you how something works.' : 'needs an answer before you go on.'}
             </div>
           </div>
         </div>
@@ -220,6 +222,8 @@ export function objectiveOf(step: Step | undefined): string {
       return 'Listen to the briefing.'
     case 'concept':
       return `Meet a new block: **${BLOCKS[step.block].name}**.`
+    case 'idea':
+      return `Learn an idea: **${IDEAS[step.idea].name}**.`
     case 'reason':
     case 'fork':
       return step.question
