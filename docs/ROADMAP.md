@@ -2,6 +2,19 @@
 
 v1 (this repo, `web/`) is a frontend-only app. Progress, decision timelines and notes live in the browser's localStorage behind a small repository interface (`web/src/repo/storage.ts`). The pieces below are planned, not built.
 
+## 0. Next up (in this order)
+
+Each step builds on the one before it, so case studies come last.
+
+**Shifts (boss fights), first version built:** after a milestone episode, an unscripted level opens on the story path. It has a short visual-novel briefing, a starting design, every block earned so far, and 3–4 waves of traffic (one of them chaos) that run back to back. Hints open only after the first failed run. Scoring: ★ survive, ★ at or under par blocks, ★ worst p99 under target. Content lives in `web/src/content/shifts/`; there are two so far (Monday Rush after replication, Front Page after the CDN).
+
+1. **Story page redesign:** each chapter is a startup growth arc (100 → 1M users). Lessons become episodes, listed next to a sticky detail panel that shows the hook, the blocks it unlocks, its sections and a Start button.
+2. **Custom named services:** `DNode.label`, plus a generic `service` block with a capacity tier, renamed from the Inspector ("Auth Service", "Feed Service").
+3. **API design, in two parts:**
+   - A short chapter on REST resources, idempotency, pagination, versioning and rate limits, with a new `api` step for writing endpoints, graded by rules.
+   - An "API" tab on named services (`DNode.api: Endpoint[]`), checked by goals such as "POST /urls is idempotent".
+4. **Case studies (`/cases`):** step-by-step worked problems in interview order (requirements → estimates → API → high-level design → deep dives). At each decision the learner commits to a choice, then a `reveal` step shows the expert's pick and reasoning next to theirs. They use named services and API steps.
+
 ## 1. PocketBase backend
 
 **Why:** accounts, syncing progress across devices, and a home for content and AI features.
@@ -52,7 +65,7 @@ Build PocketBase from Go (`pocketbase.New()` plus custom routes) when we need se
 
 ## 4. Product ideas parked for later
 
-- A sandbox mode that only offers unlocked blocks.
 - XP, streaks and stars (deliberately left out of v1).
 - Cost as a first-class metric ($/hour per block).
-- Shareable design links and an export to PNG.
+- Export a design to PNG (share links already exist in the sandbox).
+- Sandbox leaderboards: breaking point and block count per challenge (needs the backend).

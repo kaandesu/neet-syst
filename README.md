@@ -12,6 +12,8 @@ Every lesson starts with a problem your system can't handle yet: traffic grows, 
 - **Simulation:** a deterministic steady-state flow solver that models load, latency, caches, replicas, CDN, regions, queues, sharding, sessions and chaos events.
 - **Decisions:** reasoning MCQs, design forks, scoping and estimation exercises.
 - **Mentor:** a scripted mentor panel built as a message stream, so an AI mentor can plug in later.
+- **Sandbox (`/sandbox`):** free build with only the blocks you've earned. Traffic dials appear as you unlock the blocks they matter for. The page shows your design's **breaking point** (the most req/s it takes before 1% of requests fail) and which part gives out first. You can kill any block to test failover, and **Review** flags wiring mistakes and single points of failure on the canvas. Seven open-ended challenges unlock with your blocks. **Share** copies a link that carries the whole design.
+- **Skins:** a header picker switches the whole app between Current (light/dark), NEET.SYS (pixel terminal) and Factory (pixel factory floor). The canvas follows the skin too.
 - **Progress:** stored locally. There is no backend yet; see [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Run it
@@ -24,6 +26,8 @@ npm test           # engine + content tests (every lesson auto-played)
 npm run e2e        # Playwright smoke test (needs: npx playwright install chromium-headless-shell)
 npm run build
 ```
+
+**Dev mode (for testing):** tick the "Dev mode" box on the map (dev builds), or open `/?dev=1` in any build (`/?dev=0` turns it off). Every lesson and section opens, and a **Skip section** button in the lesson header auto-completes the current section like an ideal learner.
 
 ## Layout
 
