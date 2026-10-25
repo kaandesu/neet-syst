@@ -1,5 +1,6 @@
 import type { Lesson } from '@/engine/lesson/types'
 import { EMPTY, N, design, phase, scenario } from './_kit'
+import { cacheWriteOnce } from './_whatifs'
 import { replicaEnd } from './_states'
 
 const sale = (extra = {}) => phase('Black Friday', 2000, { writeRatio: 0.05, queryCost: 3, ...extra })
@@ -41,6 +42,7 @@ export const cache: Lesson = {
             },
             {
               id: 'once',
+              tryIt: cacheWriteOnce,
               text: 'Log lines that are written once and almost never read',
               why: 'A cache only pays off if an item is read again before it expires. Write-once data just wastes memory.',
             },

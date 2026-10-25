@@ -14,11 +14,20 @@ import { monitoring } from './10-monitoring'
 import { sharding } from './11-sharding'
 import { pastebin } from './c2-pastebin'
 import { checkpoint } from './checkpoint'
+import { incidents } from './incidents'
 
 export const chapter1: Chapter = {
   id: 'ch1',
   title: 'Scale from Zero to Millions',
   subtitle: 'One system, one new problem at a time.',
+  story: 'You just launched a little web shop on one machine. Every episode, more people show up and something breaks. You fix it with exactly one new building block.',
+  arc: [
+    { lesson: 'first-request', label: 'Launch' },
+    { lesson: 'load-balancer', label: '10K users' },
+    { lesson: 'cache', label: '100K users' },
+    { lesson: 'multi-region', label: '1M users' },
+    { lesson: 'sharding', label: '10M users' },
+  ],
   lessons: [
     firstRequest,
     database,
@@ -35,6 +44,7 @@ export const chapter1: Chapter = {
     sharding,
     pastebin,
   ],
+  incidents,
 }
 
 export const chapter1Checkpoint = checkpoint

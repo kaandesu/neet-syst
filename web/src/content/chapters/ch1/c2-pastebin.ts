@@ -102,7 +102,8 @@ export const pastebin: Lesson = {
         },
         {
           t: 'say',
-          text: 'Our raw numbers are modest, but the product team expects viral spikes (a leaked config on the front page of Hacker News) and wants to keep **years** of pastes, about 1.8 TB. That calls for every tool you have.',
+          speaker: 'pm',
+          text: 'Product here. The raw numbers look modest, but we expect viral spikes (think a leaked config on the front page of Hacker News), and we want to keep **years** of pastes, about 1.8 TB. Please plan for both.',
         },
         {
           t: 'reason',

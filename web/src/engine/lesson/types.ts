@@ -1,3 +1,4 @@
+import type { Mood, SpeakerId } from '../mentor/reactions'
 import type { BlockId, DNode, Design, Goal, RegionZone, Scenario } from '../types'
 
 /** Accept one block or any of several (e.g. "a database" = SQL or NoSQL). */
@@ -8,6 +9,15 @@ export interface ChaosBanner {
   body: string
 }
 
+/** A wrong idea the learner can simulate anyway, to watch it fail. */
+export interface WhatIf {
+  label: string
+  design: Design
+  scenario: Scenario
+  goals: Goal[]
+  zones?: RegionZone[]
+}
+
 export type DesignPatch = {
   addNodes?: DNode[]
   addEdges?: { from: string; to: string }[]
@@ -15,8 +25,8 @@ export type DesignPatch = {
 }
 
 export type Step =
-  /** A line from the mentor. */
-  | { t: 'say'; text: string }
+  /** A line from the mentor, or from another member of the cast. */
+  | { t: 'say'; text: string; speaker?: SpeakerId; mood?: Mood }
   /** Introduces a building block with its illustrated card. */
   | { t: 'concept'; block: BlockId; text?: string }
   /** Drag a block onto the canvas until there are `count` of them. */
@@ -29,7 +39,7 @@ export type Step =
   | {
       t: 'reason'
       question: string
-      options: { id: string; text: string; correct?: boolean; why: string }[]
+      options: { id: string; text: string; correct?: boolean; why: string; tryIt?: WhatIf }[]
     }
   /** A real design decision. Every option is valid and leads to its own branch. */
   | {
@@ -51,6 +61,8 @@ export type Step =
       hints?: string[]
       /** For free-build steps: a design that passes, used by content tests. */
       solution?: Design
+      /** Fail steps ask "what breaks first?" before running; set false to skip that. */
+      predict?: false
     }
   /** Capstone scoping: sort features into in- and out-of-scope. */
   | { t: 'requirements'; text: string; items: { text: string; inScope: boolean; why: string }[] }
@@ -74,7 +86,7 @@ export interface Section {
   steps: Step[]
 }
 
-export type LessonKind = 'unit' | 'capstone' | 'checkpoint'
+export type LessonKind = 'unit' | 'capstone' | 'checkpoint' | 'incident'
 
 export interface Lesson {
   id: string
@@ -85,13 +97,25 @@ export interface Lesson {
   concern: string
   unlocks: BlockId[]
   sections: Section[]
+  /** Rough time for the whole lesson; the map falls back to 5 per section. */
+  minutes?: number
+  /** Incidents only: appears once this lesson is done. */
+  due?: string
+  /** Incidents only: the blocks this drill reviews. */
+  reviews?: BlockId[]
 }
 
 export interface Chapter {
   id: string
   title: string
   subtitle: string
+  /** The story the chapter tells, shown on the map banner. */
+  story?: string
+  /** Growth milestones on the map: the user count reached when `lesson` starts. */
+  arc?: { lesson: string; label: string }[]
   lessons: Lesson[]
+  /** Optional review drills that appear on the map after their `due` lesson. */
+  incidents?: Lesson[]
 }
 
 /** Recorded answer for a completed step. */
@@ -100,4 +124,13 @@ export type StepAnswer =
   | { t: 'fork'; optionId: string }
   | { t: 'requirements'; picks: boolean[]; attempts: number }
   | { t: 'estimate'; value: number; attempts: number }
-  | { t: 'simulate'; passed: boolean; errorRate: number; p99Ms: number }
+  | {
+      t: 'simulate'
+      passed: boolean
+      errorRate: number
+      p99Ms: number
+      /** Node the learner predicted would break first. */
+      predicted?: string
+      predictedRight?: boolean
+      diagnoseAttempts?: number
+    }

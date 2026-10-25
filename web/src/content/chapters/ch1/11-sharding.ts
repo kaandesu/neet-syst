@@ -1,5 +1,6 @@
 import type { Lesson } from '@/engine/lesson/types'
 import { EMPTY, N, all, design, phase, scenario } from './_kit'
+import { shardByCountry, moreShards } from './_whatifs'
 
 const webs = ['web1', 'web2', 'web3']
 const bigData = (extra = {}) => phase('Big data day', 1500, { writeRatio: 0.3, dataGB: 2600, ...extra })
@@ -34,7 +35,7 @@ export const sharding: Lesson = {
               correct: true,
               why: 'Good: high cardinality, even spread, and the most common query (“posts by this user”) hits one shard.',
             },
-            { id: 'country', text: 'country', why: 'Hotspot! One country can hold half your users, and that shard melts.' },
+            { id: 'country', text: 'country', why: 'Hotspot! One country can hold half your users, and that shard melts.', tryIt: shardByCountry },
             { id: 'month', text: 'created_at month', why: 'Every new post lands on the latest shard. One hot shard, many idle ones.' },
           ],
         },
@@ -141,7 +142,7 @@ export const sharding: Lesson = {
               correct: true,
               why: 'Yes. Celebrity reads are perfect for a cache (same data, read millions of times). Some systems also give top users dedicated shards.',
             },
-            { id: 'more', text: 'Add more shards', why: 'The celebrity is still one key on one shard. More shards just add more idle ones.' },
+            { id: 'more', text: 'Add more shards', why: 'The celebrity is still one key on one shard. More shards just add more idle ones.', tryIt: moreShards },
             { id: 'ban', text: 'Rate-limit the celebrity’s fans', why: 'That’s rejecting your most engaged users. A last resort, not a design.' },
           ],
         },

@@ -92,6 +92,8 @@ export type Goal =
   | { kind: 'hasBlock'; block: BlockId; count?: number }
   | { kind: 'stateless' }
   | { kind: 'queueStable' }
+  /** Box budget: at most this many blocks, not counting the users. */
+  | { kind: 'maxBlocks'; value: number }
 
 export type NodeStatus = 'idle' | 'ok' | 'warm' | 'hot' | 'down'
 

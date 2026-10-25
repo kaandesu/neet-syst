@@ -1,7 +1,7 @@
 import type { BlockId, DNode, Design } from '../types'
 import { runScenario, wouldCreateCycle } from '../sim/solver'
 import { allPass, evaluateGoals, type GoalResult } from '../sim/goals'
-import type { BlockMatch, DesignPatch, Section, Step } from './types'
+import type { BlockMatch, DesignPatch, Section, Step, StepAnswer, WhatIf } from './types'
 
 export const matches = (block: BlockId, m: BlockMatch) => (Array.isArray(m) ? m.includes(block) : block === m)
 
@@ -85,6 +85,13 @@ export function applyPatch(design: Design, patch: DesignPatch): Design {
   return next
 }
 
+/** Run a reason option's "simulate it anyway" scenario. */
+export function simulateWhatIf(w: WhatIf) {
+  const run = runScenario(w.design, w.scenario, { zones: w.zones })
+  const goals = evaluateGoals(w.design, run, w.goals)
+  return { run, goals, passed: allPass(goals) }
+}
+
 export function simulate(section: Section, design: Design, step: Extract<Step, { t: 'simulate' }>) {
   const run = runScenario(design, step.scenario, { zones: section.zones })
   const goals: GoalResult[] = evaluateGoals(design, run, step.goals ?? section.goals)
@@ -123,12 +130,31 @@ function autoConnect(design: Design, step: Extract<Step, { t: 'connect' }>): Des
   return d
 }
 
+/** The answer an ideal learner gives (first fork option, correct reason, exact estimate). */
+export function idealAnswer(step: Step, entry?: Pick<AutoPlayLog, 'passed' | 'errorRate' | 'p99Ms'>): StepAnswer | undefined {
+  switch (step.t) {
+    case 'reason':
+      return { t: 'reason', optionId: step.options.find((o) => o.correct)?.id ?? step.options[0].id, attempts: 1 }
+    case 'fork':
+      return { t: 'fork', optionId: step.options[0].id }
+    case 'requirements':
+      return { t: 'requirements', picks: step.items.map((i) => i.inScope), attempts: 1 }
+    case 'estimate':
+      return { t: 'estimate', value: step.answer, attempts: 1 }
+    case 'simulate':
+      return { t: 'simulate', passed: !!entry?.passed, errorRate: entry?.errorRate ?? 0, p99Ms: entry?.p99Ms ?? 0 }
+    default:
+      return undefined
+  }
+}
+
 export interface AutoPlayLog {
   stepIndex: number
   step: Step
   design: Design
   passed?: boolean
   errorRate?: number
+  p99Ms?: number
 }
 
 /** Plays a section with the "right" action at every step (fork option `forkPick`). */
@@ -143,7 +169,8 @@ export function autoPlay(section: Section, forkPick = 0): AutoPlayLog[] {
     if (step.t === 'simulate') {
       if (step.solution) design = step.solution
       const r = simulate(section, design, step)
-      log.push({ stepIndex, step, design, passed: r.passed, errorRate: Math.max(...r.run.phases.map((p) => p.errorRate)) })
+      const errorRate = Math.max(...r.run.phases.map((p) => p.errorRate))
+      log.push({ stepIndex, step, design, passed: r.passed, errorRate, p99Ms: Math.max(...r.run.phases.map((p) => p.p99Ms)) })
       return
     }
     log.push({ stepIndex, step, design })

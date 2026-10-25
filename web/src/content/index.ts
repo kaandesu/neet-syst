@@ -6,7 +6,10 @@ export const CHAPTERS: Chapter[] = [chapter1]
 /** Test-out checkpoints, keyed by chapter id. */
 export const CHECKPOINTS: Record<string, Lesson> = { ch1: chapter1Checkpoint }
 
-const ALL: Lesson[] = [...CHAPTERS.flatMap((c) => c.lessons), ...Object.values(CHECKPOINTS)]
+const ALL: Lesson[] = [
+  ...CHAPTERS.flatMap((c) => [...c.lessons, ...(c.incidents ?? [])]),
+  ...Object.values(CHECKPOINTS),
+]
 
 export const lessonById = (id: string): Lesson | undefined => ALL.find((l) => l.id === id)
 

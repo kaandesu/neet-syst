@@ -19,6 +19,8 @@ interface RunsState {
   rewindTo: (key: string, nodeId: string) => void
   note: (key: string, nodeId: string, text: string) => void
   reset: (key: string, start: Design) => void
+  /** Practice again from the start, keeping earlier branches on the timeline. */
+  restart: (key: string) => void
 }
 
 export const runKey = (lessonId: string, sectionIndex: number) => `${lessonId}#${sectionIndex}`
@@ -51,6 +53,13 @@ export const useRuns = create<RunsState>()(
           const run = s.runs[key]
           if (!run) return s
           return { runs: { ...s.runs, [key]: { ...run, tree: setNote(run.tree, nodeId, text) } } }
+        }),
+      restart: (key) =>
+        set((s) => {
+          const run = s.runs[key]
+          const root = run?.tree.nodes[run.tree.rootId]
+          if (!run || !root) return s
+          return { runs: { ...s.runs, [key]: { tree: rewind(run.tree, root.id), design: root.design } } }
         }),
       reset: (key, start) => set((s) => ({ runs: { ...s.runs, [key]: { tree: createTree(start), design: start } } })),
     }),

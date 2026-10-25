@@ -1,30 +1,60 @@
-import { Check, ChevronRight, CircleHelp, GitBranch, Lightbulb, Play, RotateCcw, TriangleAlert, X, Zap } from 'lucide-react'
+import { ArrowRight, Check, ChevronRight, CircleHelp, Crosshair, FlaskConical, GitBranch, Play, RotateCcw, Search, TriangleAlert, X, Zap } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState, type ReactNode } from 'react'
 import type { GoalResult } from '@/engine/sim/goals'
-import type { Step, StepAnswer } from '@/engine/lesson/types'
+import type { Step, StepAnswer, WhatIf } from '@/engine/lesson/types'
+import type { MissKind } from '@/store/progress'
+import { SPEAKERS } from '@/content/voices'
+import type { SpeakerId } from '@/engine/mentor/reactions'
 import { cn } from '@/lib/cn'
 import { Button } from '@/ui/Button'
 import { RichText } from '@/ui/RichText'
 import { ConceptCard } from './ConceptCard'
-import { scriptedMentor } from './source'
 
 type S<T extends Step['t']> = Extract<Step, { t: T }>
 
 /** A mentor speech bubble. */
-export function Bubble({ children, tone = 'mentor', className }: { children: ReactNode; tone?: 'mentor' | 'task' | 'user'; className?: string }) {
+export function Bubble({
+  children,
+  tone = 'mentor',
+  speaker,
+  className,
+}: {
+  children: ReactNode
+  /** `plain` drops the bubble chrome, for content that already sits in a panel (the lesson dock). */
+  tone?: 'mentor' | 'task' | 'user' | 'plain'
+  /** Show who's talking (mentor lines in the lesson flow stay unlabeled). */
+  speaker?: SpeakerId
+  className?: string
+}) {
+  const who = speaker ? SPEAKERS[speaker] : undefined
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        'rounded-2xl px-4 py-3 text-[14px] leading-relaxed',
+        'text-[14px] leading-relaxed',
+        tone !== 'plain' && 'rounded-2xl px-4 py-3',
         tone === 'mentor' && 'rounded-tl-md bg-surface shadow-card ring-1 ring-line',
         tone === 'task' && 'rounded-tl-md bg-accent-soft ring-1 ring-accent/30',
         tone === 'user' && 'ml-8 rounded-tr-md bg-ink text-bg',
+        who && speaker !== 'mentor' && 'ring-2',
         className,
       )}
+      style={who && speaker !== 'mentor' ? { ['--tw-ring-color' as string]: `hsl(${who.hue} 70% 55% / 0.45)` } : undefined}
     >
+      {who && (
+        <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold">
+          <span
+            className="flex h-5 w-5 items-center justify-center rounded-full"
+            style={{ background: `light-dark(hsl(${who.hue} 80% 92%), hsl(${who.hue} 35% 25%))`, color: `light-dark(hsl(${who.hue} 60% 38%), hsl(${who.hue} 80% 78%))` }}
+          >
+            <who.icon size={12} />
+          </span>
+          {who.name}
+          <span className="font-semibold text-muted">· {who.role}</span>
+        </div>
+      )}
       {children}
     </motion.div>
   )
@@ -35,42 +65,6 @@ function ContinueButton({ onClick, label = 'Continue' }: { onClick: () => void; 
     <Button onClick={onClick} className="mt-3" size="sm" autoFocus>
       {label} <ChevronRight size={16} />
     </Button>
-  )
-}
-
-export function Hints({ step }: { step: Step }) {
-  const hints = scriptedMentor.hints(step)
-  const [shown, setShown] = useState(0)
-  if (!hints.length) return null
-  return (
-    <div className="mt-2 space-y-1.5">
-      {hints.slice(0, shown).map((h, i) => (
-        <div key={i} className="flex gap-2 rounded-xl bg-warn-soft px-3 py-2 text-[13px]">
-          <Lightbulb size={15} className="mt-0.5 shrink-0 text-warn" />
-          <span>
-            <RichText text={h} />
-          </span>
-        </div>
-      ))}
-      {shown < hints.length && (
-        <button className="flex items-center gap-1 text-xs font-semibold text-muted hover:text-ink" onClick={() => setShown(shown + 1)}>
-          <CircleHelp size={14} /> {shown === 0 ? 'Need a hint?' : 'Another hint'}
-        </button>
-      )}
-    </div>
-  )
-}
-
-export function SayCard({ step, active, onDone }: { step: S<'say'>; active: boolean; onDone: () => void }) {
-  return (
-    <Bubble>
-      <RichText text={step.text} />
-      {active && (
-        <div>
-          <ContinueButton onClick={onDone} />
-        </div>
-      )}
-    </Bubble>
   )
 }
 
@@ -88,11 +82,15 @@ export function ReasonCard({
   answer,
   active,
   onDone,
+  onMiss,
+  onTryIt,
 }: {
   step: S<'reason'>
   answer?: StepAnswer
   active: boolean
   onDone: (a: StepAnswer) => void
+  onMiss?: (k: MissKind) => void
+  onTryIt?: (w: WhatIf) => void
 }) {
   const done = answer?.t === 'reason' ? answer : undefined
   const [tried, setTried] = useState<string[]>([])
@@ -120,6 +118,7 @@ export function ReasonCard({
                 onClick={() => {
                   setPicked(o.id)
                   if (!tried.includes(o.id)) setTried([...tried, o.id])
+                  if (!o.correct) onMiss?.('reason')
                 }}
                 className={cn(
                   'w-full rounded-xl border-2 bg-surface px-3 py-2 text-left text-[13.5px] transition',
@@ -137,6 +136,17 @@ export function ReasonCard({
               {(wrongTried || isRight) && (picked === o.id || isRight) && (
                 <div className={cn('mt-1 px-3 text-[13px] leading-relaxed', isRight ? 'text-ink' : 'text-muted')}>
                   <RichText text={o.why} />
+                  {active && wrongTried && o.tryIt && onTryIt && (
+                    <button
+                      onClick={() => {
+                        onMiss?.('whatif')
+                        onTryIt(o.tryIt!)
+                      }}
+                      className="mt-1.5 flex items-center gap-1.5 rounded-lg bg-surface px-2.5 py-1 text-[12px] font-bold text-accent ring-1 ring-accent/40 hover:bg-accent-soft"
+                    >
+                      <FlaskConical size={13} /> Simulate it anyway
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -201,11 +211,13 @@ export function RequirementsCard({
   answer,
   active,
   onDone,
+  onMiss,
 }: {
   step: S<'requirements'>
   answer?: StepAnswer
   active: boolean
   onDone: (a: StepAnswer) => void
+  onMiss?: (k: MissKind) => void
 }) {
   const done = answer?.t === 'requirements' ? answer : undefined
   const [picks, setPicks] = useState<(boolean | null)[]>(done?.picks ?? step.items.map(() => null))
@@ -261,6 +273,7 @@ export function RequirementsCard({
           onClick={() => {
             setChecked(true)
             setAttempts(attempts + 1)
+            if (!allRight) onMiss?.('requirements')
           }}
         >
           Check
@@ -279,11 +292,13 @@ export function EstimateCard({
   answer,
   active,
   onDone,
+  onMiss,
 }: {
   step: S<'estimate'>
   answer?: StepAnswer
   active: boolean
   onDone: (a: StepAnswer) => void
+  onMiss?: (k: MissKind) => void
 }) {
   const done = answer?.t === 'estimate' ? answer : undefined
   const [value, setValue] = useState(done ? String(done.value) : '')
@@ -296,7 +311,10 @@ export function EstimateCard({
     if (!Number.isFinite(v) || v <= 0) return
     setAttempts(attempts + 1)
     if (v >= step.answer / step.tolerance && v <= step.answer * step.tolerance) setVerdict('right')
-    else setVerdict(v > step.answer ? 'high' : 'low')
+    else {
+      setVerdict(v > step.answer ? 'high' : 'low')
+      onMiss?.('estimate')
+    }
   }
 
   return (
@@ -334,7 +352,6 @@ export function EstimateCard({
       )}
       {active && verdict === 'high' && <p className="mt-2 text-[13px] text-bad">Too high. Check your units and divisions.</p>}
       {active && verdict === 'low' && <p className="mt-2 text-[13px] text-bad">Too low. Did you multiply everything through?</p>}
-      {active && verdict && verdict !== 'right' && <Hints step={step} />}
       {(reveal || !active) && (
         <div className="mt-2 rounded-xl bg-surface-2 px-3 py-2 text-[13px]">
           {verdict === 'right' && active && <div className="mb-1 font-bold text-good">Within {step.tolerance}× of the answer. That’s interview-grade.</div>}
@@ -346,33 +363,34 @@ export function EstimateCard({
   )
 }
 
-export function ActionCard({ step, active }: { step: S<'place'> | S<'connect'> | S<'disconnect'>; active: boolean }) {
-  return (
-    <Bubble tone={active ? 'task' : 'mentor'} className={cn(!active && 'py-2 text-[13px] text-muted')}>
-      <div className="flex items-start gap-2">
-        {active ? (
-          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-accent-ink">
-            →
-          </span>
-        ) : (
-          <Check size={16} className="mt-0.5 shrink-0 text-good" />
-        )}
-        <span>
-          <RichText text={step.text} />
-        </span>
-      </div>
-      {active && <Hints step={step} />}
-    </Bubble>
-  )
-}
-
 export interface SimOutcome {
   passed: boolean
   goals: GoalResult[]
   errorRate: number
   p99Ms: number
   warnings: string[]
+  /** Nodes a learner may fairly blame for the failure. */
+  culprits: string[]
+  /** Plain-English state of every node in the worst phase. */
+  notes: Record<string, string>
 }
+
+/** Predict-before-run and diagnose-the-failure state, owned by the lesson page. */
+export interface SimProbe {
+  /** This step asks "what breaks first?" before running. */
+  predict: boolean
+  /** Node id, 'skip', or null while still deciding. */
+  prediction: string | null
+  onSkipPredict: () => void
+  /** Wrong picks so far while diagnosing a failed fix, and whether the culprit was found. */
+  diagnosis: { picks: string[]; found: boolean }
+  label: (id: string) => string
+}
+
+/** After this many wrong picks the culprit is revealed. */
+export const DIAGNOSE_TRIES = 2
+
+const pct = (n: number) => `${(n * 100).toFixed(n > 0 && n < 0.01 ? 1 : 0)}%`
 
 export function SimulateCard({
   step,
@@ -380,21 +398,41 @@ export function SimulateCard({
   active,
   playing,
   outcome,
+  probe,
+  prev,
   onRun,
   onDone,
+  plain,
 }: {
   step: S<'simulate'>
   answer?: StepAnswer
   active: boolean
   playing: boolean
   outcome: SimOutcome | null
+  probe?: SimProbe
+  /** The last failing run before this step, for the before/after strip. */
+  prev?: { errorRate: number; p99Ms: number }
   onRun: () => void
   onDone: (a: StepAnswer) => void
+  plain?: boolean
 }) {
   const done = answer?.t === 'simulate' ? answer : undefined
   const result = active ? outcome : done ? { passed: done.passed } : null
-  const canContinue = active && outcome && !playing && (step.expect !== 'pass' || outcome.passed)
   const explain = result ? (result.passed ? step.explainPass : step.explainFail) : undefined
+
+  const predicting = active && !!probe?.predict && probe.prediction === null && !outcome && !playing
+  const guess = probe?.prediction && probe.prediction !== 'skip' ? probe.prediction : null
+  const guessRight = guess && outcome ? outcome.culprits.includes(guess) : undefined
+  const culprit = outcome?.culprits[0]
+
+  const failedFix = active && !!outcome && !playing && !outcome.passed && step.expect === 'pass'
+  const diagnosis = probe?.diagnosis ?? { picks: [], found: false }
+  const canDiagnose = failedFix && !!outcome && outcome.culprits.length > 0
+  const diagnosed = diagnosis.found || diagnosis.picks.length >= DIAGNOSE_TRIES
+  const canContinue = active && outcome && !playing && (step.expect !== 'pass' || outcome.passed)
+
+  const after = step.expect === 'pass' && prev ? (active ? (outcome?.passed && !playing ? outcome : null) : done?.passed ? done : null) : null
+  const delta = after && prev && (after.errorRate < prev.errorRate || after.p99Ms < prev.p99Ms) ? after : null
 
   return (
     <div className="space-y-2">
@@ -412,14 +450,45 @@ export function SimulateCard({
           </div>
         </motion.div>
       )}
-      <Bubble tone={active ? 'task' : 'mentor'}>
+      <Bubble tone={plain ? 'plain' : active ? 'task' : 'mentor'}>
         <RichText text={step.text} />
+        {predicting && (
+          <div className="mt-3 rounded-xl bg-surface px-3 py-2.5 ring-1 ring-accent/40">
+            <div className="flex items-center gap-1.5 text-[13px] font-bold text-accent">
+              <Crosshair size={15} /> Before you run it: which part breaks first?
+            </div>
+            <div className="mt-0.5 text-[12.5px] text-muted">Click it on the canvas.</div>
+            <button onClick={probe!.onSkipPredict} className="mt-1.5 text-[12px] font-semibold text-muted underline-offset-2 hover:text-ink hover:underline">
+              Not sure, just run it
+            </button>
+          </div>
+        )}
+        {active && guess && !outcome && !playing && (
+          <div className="mt-3 flex items-center gap-1.5 text-[13px]">
+            <Crosshair size={14} className="text-accent" /> Your call: <span className="font-bold">{probe!.label(guess)}</span>
+            <span className="text-muted">(click another to change)</span>
+          </div>
+        )}
         {active && (
           <div className="mt-3">
-            <Button onClick={onRun} disabled={playing} variant={outcome && !outcome.passed && step.expect === 'pass' ? 'secondary' : 'primary'}>
+            <Button onClick={onRun} disabled={playing || predicting} variant={outcome && !outcome.passed && step.expect === 'pass' ? 'secondary' : 'primary'}>
               {outcome ? <RotateCcw size={16} /> : <Play size={16} />}
               {playing ? 'Running…' : outcome ? 'Run again' : 'Run traffic'}
             </Button>
+          </div>
+        )}
+        {active && guess && outcome && !playing && culprit && (
+          <div className={cn('mt-3 rounded-xl px-3 py-2 text-[13px]', guessRight ? 'bg-good-soft' : 'bg-surface-2')}>
+            {guessRight ? (
+              <>
+                <span className="font-bold text-good">✓ You called it.</span> {probe!.label(guess)}: {outcome.notes[guess]}
+              </>
+            ) : (
+              <>
+                You picked <span className="font-bold">{probe!.label(guess)}</span>, but it was <span className="font-bold">{probe!.label(culprit)}</span> that
+                broke first. {outcome.notes[culprit]}
+              </>
+            )}
           </div>
         )}
         {result && !playing && (
@@ -433,7 +502,7 @@ export function SimulateCard({
                 <RichText text={explain} />
               </div>
             )}
-            {active && outcome && !outcome.passed && outcome.warnings.length > 0 && (
+            {active && outcome && !outcome.passed && !canDiagnose && outcome.warnings.length > 0 && (
               <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-muted">
                 {outcome.warnings.slice(0, 3).map((w) => (
                   <li key={w}>{w}</li>
@@ -442,10 +511,47 @@ export function SimulateCard({
             )}
           </div>
         )}
-        {active && outcome && !outcome.passed && step.expect === 'pass' && !playing && <Hints step={step} />}
+        {delta && prev && (
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-surface px-3 py-2 font-mono text-[12.5px] ring-1 ring-line">
+            <span className="flex items-center gap-1">
+              errors <span className="text-bad">{pct(prev.errorRate)}</span> <ArrowRight size={12} />
+              <span className="font-bold text-good">{pct(delta.errorRate)}</span>
+            </span>
+            <span className="flex items-center gap-1">
+              p99 <span className={cn(delta.p99Ms < prev.p99Ms && 'text-bad')}>{Math.round(prev.p99Ms)} ms</span> <ArrowRight size={12} />
+              <span className={cn('font-bold', delta.p99Ms <= prev.p99Ms && 'text-good')}>{Math.round(delta.p99Ms)} ms</span>
+            </span>
+          </div>
+        )}
+        {canDiagnose && !diagnosed && (
+          <div className="mt-2 rounded-xl bg-surface px-3 py-2.5 ring-1 ring-accent/40">
+            <div className="flex items-center gap-1.5 text-[13px] font-bold text-accent">
+              <Search size={15} /> Something's still struggling. Click the part you think is the problem.
+            </div>
+            {diagnosis.picks.length > 0 && (
+              <div className="mt-1 text-[12.5px] text-muted">
+                {probe!.label(diagnosis.picks[diagnosis.picks.length - 1])} looks fine: {outcome!.notes[diagnosis.picks[diagnosis.picks.length - 1]]} Look for red or orange.
+              </div>
+            )}
+          </div>
+        )}
+        {canDiagnose && diagnosed && culprit && (
+          <div className="mt-2 rounded-xl bg-surface px-3 py-2 text-[13px] ring-1 ring-line">
+            {diagnosis.found ? <span className="font-bold text-good">Found it. </span> : <span className="font-bold">Here's the problem: </span>}
+            <span className="font-bold">{probe!.label(culprit)}</span>. {outcome!.notes[culprit]}
+          </div>
+        )}
         {canContinue && (
           <ContinueButton
-            onClick={() => onDone({ t: 'simulate', passed: outcome.passed, errorRate: outcome.errorRate, p99Ms: outcome.p99Ms })}
+            onClick={() =>
+              onDone({
+                t: 'simulate',
+                passed: outcome.passed,
+                errorRate: outcome.errorRate,
+                p99Ms: outcome.p99Ms,
+                ...(guess ? { predicted: guess, predictedRight: !!guessRight } : {}),
+              })
+            }
           />
         )}
       </Bubble>

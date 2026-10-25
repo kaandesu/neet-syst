@@ -1,5 +1,6 @@
 import type { Lesson } from '@/engine/lesson/types'
 import { EMPTY, N, design, phase, scenario } from './_kit'
+import { cdnTtlZero } from './_whatifs'
 import { cacheEnd } from './_states'
 
 const viral = (extra = {}) =>
@@ -50,7 +51,7 @@ export const cdn: Lesson = {
               correct: true,
               why: 'Right. Build tools do this automatically with content hashes (app.3f9a.js). You get long TTLs *and* instant updates.',
             },
-            { id: 'ttl0', text: 'Set the CDN’s TTL to zero', why: 'That turns the CDN into a slow proxy and defeats its whole purpose.' },
+            { id: 'ttl0', text: 'Set the CDN’s TTL to zero', why: 'That turns the CDN into a slow proxy and defeats its whole purpose.', tryIt: cdnTtlZero },
             { id: 'wait', text: 'Ask users to clear their cache', why: 'You can’t ask millions of users to do anything.' },
           ],
         },

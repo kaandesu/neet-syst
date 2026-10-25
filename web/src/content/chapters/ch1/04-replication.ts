@@ -1,5 +1,6 @@
 import type { Lesson } from '@/engine/lesson/types'
 import { EMPTY, N, design, phase, scenario } from './_kit'
+import { writeHeavyReplicas } from './_whatifs'
 import { lbEnd } from './_states'
 
 const busy = (extra = {}) => phase('Busy day', 2000, { writeRatio: 0.1, ...extra })
@@ -33,6 +34,7 @@ export const replication: Lesson = {
             },
             {
               id: 'writes',
+              tryIt: writeHeavyReplicas,
               text: 'Replicas make writes faster',
               why: 'Every write still goes to the primary, and then gets copied to every replica. Replication helps reads, not writes.',
             },

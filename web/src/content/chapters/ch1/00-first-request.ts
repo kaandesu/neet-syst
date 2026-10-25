@@ -26,6 +26,7 @@ export const firstRequest: Lesson = {
       steps: [
         {
           t: 'say',
+          mood: 'happy',
           text: 'Hi! I’m your mentor. Over this chapter we’ll grow **one** system from a single box to millions of users. Every time something breaks, you’ll unlock exactly one new building block to fix it.',
         },
         { t: 'say', text: 'No boxes and arrows yet. First: what actually happens when someone opens your app? Three pieces are involved.' },

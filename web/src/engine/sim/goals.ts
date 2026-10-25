@@ -24,6 +24,8 @@ export function goalLabel(goal: Goal): string {
       return 'Web tier is stateless'
     case 'queueStable':
       return 'Workers keep up with the queue'
+    case 'maxBlocks':
+      return `At most ${goal.value} blocks`
   }
 }
 
@@ -71,6 +73,10 @@ export function evaluateGoals(design: Design, run: SimRun, goals: Goal[]): GoalR
           ...run.phases.flatMap((p) => Object.values(p.nodes).map((n) => n.backlog ?? 0)),
         )
         return { goal, label, pass: backlog === 0, detail: backlog ? `${Math.round(backlog)} tasks waiting` : 'queue drains' }
+      }
+      case 'maxBlocks': {
+        const n = design.nodes.filter((x) => x.block !== 'client').length
+        return { goal, label, pass: n <= goal.value, detail: `${n} placed` }
       }
     }
   })

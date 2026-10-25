@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { autoPlay } from '@/engine/lesson/runner'
+import { autoPlay, simulateWhatIf } from '@/engine/lesson/runner'
+import { lintDesign } from '@/engine/mentor/lint'
 import type { BlockId } from '@/engine/types'
 import { CHAPTERS, CHECKPOINTS } from './index'
 
@@ -35,6 +36,54 @@ describe.each(CHAPTERS)('$title', (chapter) => {
   }
 })
 
+describe.each(CHAPTERS)('$title incidents', (chapter) => {
+  const unlockedBy = new Map<string, Set<BlockId>>()
+  const acc = new Set<BlockId>()
+  for (const l of chapter.lessons) {
+    l.unlocks.forEach((b) => acc.add(b))
+    unlockedBy.set(l.id, new Set(acc))
+  }
+
+  for (const inc of chapter.incidents ?? []) {
+    it(`${inc.title} breaks, then its solution holds`, () => {
+      expect(unlockedBy.has(inc.due!), `due lesson ${inc.due}`).toBe(true)
+      for (const s of inc.sections) for (const b of s.palette) expect(unlockedBy.get(inc.due!), `${inc.id}: ${b}`).toContain(b)
+      for (const e of autoPlay(inc.sections[0])) {
+        if (e.step.t !== 'simulate') continue
+        expect(e.passed, `${inc.id} step ${e.stepIndex}`).toBe(e.step.expect === 'pass')
+      }
+    })
+  }
+})
+
+describe('design review', () => {
+  const all = CHAPTERS.flatMap((c) => [...c.lessons, ...(c.incidents ?? [])])
+  for (const l of all)
+    for (const s of l.sections)
+      it(`${l.title} / ${s.title}: passing designs have no wiring warnings`, () => {
+        for (const e of autoPlay(s)) {
+          if (e.step.t !== 'simulate' || e.step.expect !== 'pass') continue
+          expect(lintDesign(e.design).map((f) => `${f.rule}:${f.nodeId}`), `step ${e.stepIndex}`).toEqual([])
+        }
+      })
+})
+
+describe('what-ifs', () => {
+  const lessons = CHAPTERS.flatMap((c) => c.lessons)
+  for (const l of lessons)
+    for (const s of l.sections)
+      for (const step of s.steps) {
+        if (step.t !== 'reason') continue
+        for (const o of step.options) {
+          if (!o.tryIt) continue
+          it(`${l.title}: "${o.text}" really fails when simulated`, () => {
+            expect(o.correct, 'only wrong answers get a what-if').toBeFalsy()
+            expect(simulateWhatIf(o.tryIt!).passed).toBe(false)
+          })
+        }
+      }
+})
+
 describe('checkpoints', () => {
   for (const cp of Object.values(CHECKPOINTS)) {
     it(`${cp.title} has a passing solution`, () => {
@@ -47,7 +96,7 @@ describe('checkpoints', () => {
 
 describe('lesson ids', () => {
   it('are unique', () => {
-    const ids = [...CHAPTERS.flatMap((c) => c.lessons), ...Object.values(CHECKPOINTS)].map((l) => l.id)
+    const ids = [...CHAPTERS.flatMap((c) => [...c.lessons, ...(c.incidents ?? [])]), ...Object.values(CHECKPOINTS)].map((l) => l.id)
     expect(new Set(ids).size).toBe(ids.length)
   })
 })
