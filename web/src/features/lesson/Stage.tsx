@@ -89,7 +89,7 @@ export function Dock({
   // A reaction from the same speaker changes their face; one from someone else gets its own little portrait.
   const face = mood ?? (reply?.speaker === speaker ? reply.mood : undefined)
   return (
-    <div className="vn-dock relative z-20 shrink-0 border-t border-line bg-surface">
+    <div className="vn-dock relative z-40 shrink-0 border-t border-line bg-surface">
       <div className="mx-auto flex max-w-5xl items-start gap-4 px-4 pt-3 pb-3">
         <Portrait speaker={speaker} mood={face} size={84} className="-mt-9" />
         <div className="min-w-0 flex-1">
