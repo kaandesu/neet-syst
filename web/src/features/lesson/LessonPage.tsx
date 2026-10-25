@@ -2,12 +2,12 @@ import { ArrowLeft, Check, ChevronRight, Crosshair, FastForward, Play, FlaskConi
 import { ApiCard } from '@/features/api/ApiCard'
 import { RevealCard } from '@/features/cases/RevealCard'
 import { IdeaCard } from '@/features/ideas/IdeaCard'
-import { motion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router'
 import { BLOCKS } from '@/content/blocks'
 import { CHAPTERS, lessonById } from '@/content'
-import { applyPatch, autoPlay, idealAnswer, isActionDone, isCanvasAction, removeNodes, setNodeProps, simulate, simulateWhatIf } from '@/engine/lesson/runner'
+import { applyPatch, autoPlay, idealAnswer, isActionDone, isCanvasAction, isScene, removeNodes, setNodeProps, simulate, simulateWhatIf } from '@/engine/lesson/runner'
 import type { BlockMatch, Lesson, Section, Step, StepAnswer, WhatIf } from '@/engine/lesson/types'
 import { bottleneck, culprits, explainNode } from '@/engine/sim/explain'
 import type { BlockId, Design, SimRun } from '@/engine/types'
@@ -16,7 +16,7 @@ import { DesignCanvas } from '@/features/canvas/DesignCanvas'
 import { Inspector } from '@/features/canvas/Inspector'
 import { ConceptStepCard, DIAGNOSE_TRIES, EstimateCard, ForkCard, ReasonCard, RequirementsCard, SimulateCard, type SimProbe } from '@/features/mentor/cards'
 import { chipsFor, CHIP_LABEL, hintLadder, showMe, whyText, type Callout, type ChipId, type CoachCtx } from '@/features/mentor/coach'
-import { REACTIONS } from '@/content/voices'
+import { ADA_POSES, poseFor, REACTIONS } from '@/content/voices'
 import { lintDesign } from '@/engine/mentor/lint'
 import { react, type MentorLine } from '@/engine/mentor/reactions'
 import { TimelineBar } from '@/features/timeline/TimelineBar'
@@ -28,6 +28,7 @@ import { RichText } from '@/ui/RichText'
 import { ThemeToggle } from '@/ui/ThemeToggle'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 import { GoalBar, MetricsStrip } from './HUD'
+import { Scene } from './Scene'
 import { Dock, isBlocking, QuestionModal, SituationPanel, type FeedItem } from './Stage'
 import { designKey, useSimPlayback } from './useSimPlayback'
 
@@ -341,6 +342,12 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
     }
   }
 
+  const scene = !whatIf && !finished && step?.t === 'say' && isScene(section, stepIndex) ? step : null
+  /** Plays through the rest of Ada's scene in one go. */
+  const skipScene = () => {
+    for (let i = stepIndex; isScene(section, i); i++) commitStep(key, i, run.design)
+  }
+
   const onRewind = (id: string) => {
     clear()
     setInspected(null)
@@ -415,7 +422,7 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
 
   /** What the dialogue dock says for the current step. */
   const dock = (() => {
-    if (finished) return { mood: 'happy' as const, kicker: 'Section complete', body: <p>Nice work. Everything you decided is on the timeline below.</p> }
+    if (finished) return { mood: 'happy' as const, portrait: ADA_POSES.thumbsUp, kicker: 'Section complete', body: <p>Nice work. Everything you decided is on the timeline below.</p> }
     if (!step) return { body: null }
     switch (step.t) {
       case 'say':
@@ -537,7 +544,7 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
           notes={notes}
           onNote={onNote}
         />
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col" inert={!!scene}>
           <main className="relative min-h-0 flex-1 bg-canvas">
             {whatIf ? (
               <>
@@ -657,10 +664,13 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
               />
             )}
           </main>
-          <Dock speaker={dock.speaker} mood={dock.mood} kicker={dock.kicker} reply={reply} chips={chips} onChip={onChip}>
+          <Dock speaker={dock.speaker} mood={dock.mood} kicker={dock.kicker} reply={reply} chips={chips} onChip={onChip} empty={!!scene} portrait={dock.portrait}>
             {dock.body}
           </Dock>
         </div>
+        <AnimatePresence>
+          {scene && <Scene line={stepIndex} text={scene.text} pose={poseFor(scene.mood, stepIndex)} onNext={() => complete()} onSkip={skipScene} />}
+        </AnimatePresence>
       </div>
       <TimelineBar tree={tree} section={section} onRewind={onRewind} />
       {narrow && (

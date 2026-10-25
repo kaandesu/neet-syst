@@ -29,6 +29,17 @@ type CanvasStep = Extract<Step, { t: 'place' | 'connect' | 'disconnect' | 'confi
 export const isCanvasAction = (step: Step): step is CanvasStep =>
   step.t === 'place' || step.t === 'connect' || step.t === 'disconnect' || step.t === 'configure'
 
+/**
+ * Whether a line plays as a full-stage scene with Ada instead of in the dock: by default only the
+ * run of her lines that opens a section, while there's nothing to do on the canvas yet.
+ */
+export function isScene(section: Section, stepIndex: number): boolean {
+  const step = section.steps[stepIndex]
+  if (step?.t !== 'say' || (step.speaker ?? 'mentor') !== 'mentor') return false
+  if (step.scene !== undefined) return step.scene
+  return step.mood !== 'worried' && section.steps.slice(0, stepIndex).every((s) => s.t === 'say')
+}
+
 function configured(n: DNode, step: Extract<Step, { t: 'configure' }>) {
   if (n.block !== step.block) return false
   if (step.label !== undefined && !n.label) return false

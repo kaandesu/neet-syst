@@ -29,8 +29,11 @@ export type DesignPatch = {
 }
 
 export type Step =
-  /** A line from the mentor, or from another member of the cast. */
-  | { t: 'say'; text: string; speaker?: SpeakerId; mood?: Mood }
+  /**
+   * A line from the mentor, or from another member of the cast. Ada's opening lines play as a
+   * full-stage scene; `scene` forces that on or off for this line.
+   */
+  | { t: 'say'; text: string; speaker?: SpeakerId; mood?: Mood; scene?: boolean }
   /** Introduces an idea (an API rule, a protocol trick) with its card; it joins the Ideas shelf in the Collection. */
   | { t: 'idea'; idea: IdeaId }
   /** Introduces a building block with its illustrated card. */

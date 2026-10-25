@@ -23,6 +23,13 @@ export const SPEAKERS: Record<SpeakerId, Speaker> = {
   pm: { name: 'Priya', role: 'Product', icon: Briefcase, hue: 160, faces: faces('priya') },
 }
 
+/** Ada's full-size poses for story scenes. */
+const pose = (name: string) => `${import.meta.env.BASE_URL}avatars/ada_big_${name}.webp`
+export const ADA_POSES = { present: pose('1'), explain: pose('2'), thumbsUp: pose('thumbsup') }
+
+/** Ada alternates between presenting and explaining, line by line; the thumbs up is saved for a finished section. */
+export const poseFor = (mood: Mood | undefined, stepIndex: number) => (mood === 'worried' || stepIndex % 2 ? ADA_POSES.explain : ADA_POSES.present)
+
 /**
  * How the cast reacts to what just happened. Order matters: the first matching rule wins,
  * so specific rules (a block, a lesson kind, a past struggle) come before general ones.

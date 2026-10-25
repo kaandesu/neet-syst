@@ -422,6 +422,77 @@
   text-transform: uppercase;
   box-shadow: 0 0 0 2px #1d1d1d;
 }
+/* ── Story scenes: Ada full-size with a speech bubble (every skin) ──────────── */
+
+.vn-bubble {
+  --bubble-bg: var(--surface);
+  --bubble-edge: var(--line);
+  background: var(--bubble-bg);
+  color: var(--ink);
+  border: 2px solid var(--bubble-edge);
+  box-shadow: var(--shadow, 0 10px 30px rgb(0 0 0 / 0.3));
+}
+/* The tail points back down-left at Ada's raised hand: an edge-coloured wedge with a bubble-coloured one inside. */
+.vn-bubble-tail,
+.vn-bubble-tail::after {
+  position: absolute;
+  clip-path: polygon(100% 0, 100% 100%, 0 75%);
+}
+.vn-bubble-tail {
+  left: -34px;
+  top: 30px;
+  width: 36px;
+  height: 40px;
+  background: var(--bubble-edge);
+}
+.vn-bubble-tail::after {
+  content: '';
+  inset: 3px 0 4px 5px;
+  background: var(--bubble-bg);
+}
+
+/* Factory: parchment with a black ink edge, a gold inner frame and pixel corner studs. */
+[data-skin='factory'] .vn-bubble {
+  --bubble-bg: #f6ecd4;
+  --bubble-edge: #1d1d1d;
+  color: #2b1d10;
+  border-width: 4px;
+  box-shadow:
+    inset 0 0 0 4px #f6ecd4,
+    inset 0 0 0 7px #c9a24a,
+    10px 10px 0 0 rgb(0 0 0 / 0.35);
+}
+[data-skin='factory'] .vn-bubble::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+  --stud: linear-gradient(#c9a24a, #c9a24a);
+  background:
+    var(--stud) top left / 10px 10px no-repeat,
+    var(--stud) top right / 10px 10px no-repeat,
+    var(--stud) bottom left / 10px 10px no-repeat,
+    var(--stud) bottom right / 10px 10px no-repeat;
+}
+[data-skin='factory'] .vn-bubble .text-ink {
+  color: #1d1d1d;
+}
+[data-skin='factory'] .vn-bubble code {
+  background: #e6d6b0;
+}
+:is([data-skin='pixel'], [data-skin='factory']) .vn-bubble-line {
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+[data-skin='pixel'] .vn-bubble {
+  --bubble-edge: var(--accent);
+  border-width: 3px;
+}
+:is([data-skin='pixel'], [data-skin='factory']) .vn-scene-skip {
+  box-shadow: 0 0 0 2px #1d1d1d;
+}
+
 /* Blocking cards: a crate lid you have to deal with before the floor moves again. */
 [data-skin='factory'] .vn-modal {
   box-shadow:

@@ -31,11 +31,14 @@ export function Portrait({
   speaker = 'mentor',
   mood = 'neutral',
   size = 88,
+  src,
   className,
 }: {
   speaker?: SpeakerId
   mood?: Mood
   size?: number
+  /** A different picture than the mood's face, e.g. Ada's thumbs up. */
+  src?: string
   className?: string
 }) {
   const who = SPEAKERS[speaker]
@@ -48,15 +51,15 @@ export function Portrait({
     >
       <AnimatePresence initial={false}>
         <motion.img
-          key={mood}
-          src={who.faces[mood]}
+          key={src ?? mood}
+          src={src ?? who.faces[mood]}
           alt=""
           draggable={false}
           initial={{ opacity: 0, y: 3 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
-          className="absolute inset-0 h-full w-full object-cover object-top"
+          className={cn('absolute inset-0 h-full w-full', src ? 'object-contain object-bottom' : 'object-cover object-top')}
         />
       </AnimatePresence>
     </div>
@@ -75,9 +78,15 @@ export function Dock({
   reply,
   chips,
   onChip,
+  empty,
+  portrait,
 }: {
+  /** Overrides the speaker's face, see `Portrait`. */
+  portrait?: string
   speaker?: SpeakerId
   mood?: Mood
+  /** Keep the frame but hide what's in it, e.g. while a scene says the line instead. Keeps its height so the canvas doesn't jump. */
+  empty?: boolean
   /** Small label over the text, e.g. "Objective". */
   kicker?: string
   children: ReactNode
@@ -91,8 +100,8 @@ export function Dock({
   const face = mood ?? (reply?.speaker === speaker ? reply.mood : undefined)
   return (
     <div className="vn-dock relative z-40 shrink-0 border-t border-line bg-surface">
-      <div className="mx-auto flex max-w-5xl items-start gap-5 px-5 pt-4 pb-5">
-        <Portrait speaker={speaker} mood={face} size={120} className="-mt-14" />
+      <div className={cn('mx-auto flex max-w-5xl items-start gap-5 px-5 pt-4 pb-5', empty && 'invisible')}>
+        <Portrait speaker={speaker} mood={face} src={portrait} size={120} className="-mt-14" />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="vn-nameplate rounded-md bg-accent px-2.5 py-0.5 text-[13px] font-bold text-accent-ink">{who.name}</span>
