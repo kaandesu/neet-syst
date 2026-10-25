@@ -98,7 +98,7 @@ export function decodeShare(code: string): Shared | null {
 export const SHARE_PARAM = 'design'
 
 export function shareUrl(s: Shared, origin = location.origin) {
-  return `${origin}/sandbox#${SHARE_PARAM}=${encodeShare(s)}`
+  return `${origin}${import.meta.env.BASE_URL}sandbox#${SHARE_PARAM}=${encodeShare(s)}`
 }
 
 /** Reads a share code from a location hash like `#design=…`. */

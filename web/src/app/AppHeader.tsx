@@ -12,7 +12,7 @@ export function AppHeader() {
     <header className="app-header sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-2 px-4">
         <NavLink to="/" className="app-brand mr-3 flex shrink-0 items-center gap-2 text-[17px] font-extrabold tracking-tight">
-          <img src="/neetsyst-logo.webp" alt="" width={36} height={36} className="h-9 w-9 shrink-0" />
+          <img src={`${import.meta.env.BASE_URL}neetsyst-logo.webp`} alt="" width={36} height={36} className="h-9 w-9 shrink-0" />
           <span className="hidden sm:inline">
             neet<span className="mx-1 text-accent">·</span>syst
           </span>

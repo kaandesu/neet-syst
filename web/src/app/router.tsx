@@ -37,4 +37,4 @@ export const router = createBrowserRouter([
       { path: '*', element: <MapPage /> },
     ],
   },
-])
+], { basename: import.meta.env.BASE_URL })

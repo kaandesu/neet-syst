@@ -11,9 +11,9 @@ export interface Speaker {
 }
 
 const faces = (who: string, worried = 'worried'): Record<Mood, string> => ({
-  neutral: `/avatars/${who}_mini_neutral.webp`,
-  happy: `/avatars/${who}_mini_happy.webp`,
-  worried: `/avatars/${who}_mini_${worried}.webp`,
+  neutral: `${import.meta.env.BASE_URL}avatars/${who}_mini_neutral.webp`,
+  happy: `${import.meta.env.BASE_URL}avatars/${who}_mini_happy.webp`,
+  worried: `${import.meta.env.BASE_URL}avatars/${who}_mini_${worried}.webp`,
 })
 
 /** The small cast that talks to the learner. All lines are authored; nothing is generated. */
