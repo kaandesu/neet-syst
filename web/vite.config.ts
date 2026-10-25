@@ -5,7 +5,7 @@ import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  // GitHub Pages serves the app from /neet-syst/; local dev stays at /.
+  // Set PAGES_BASE when hosting under a sub-path (e.g. /neet-syst/); the custom domain serves from /.
   base: process.env.PAGES_BASE ?? '/',
   plugins: [react(), tailwindcss()],
   resolve: {

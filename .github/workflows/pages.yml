@@ -26,9 +26,8 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
+      # Served from the custom domain root, so the default base (/) is right.
       - run: npm run build
-        env:
-          PAGES_BASE: /neet-syst/
       # Serve the SPA for deep links like /neet-syst/sandbox.
       - run: cp dist/index.html dist/404.html
       - uses: peaceiris/actions-gh-pages@v4
@@ -37,3 +36,4 @@ jobs:
           publish_dir: web/dist
           publish_branch: gh-pages
           force_orphan: true
+          cname: neetsystem.study
