@@ -17,7 +17,9 @@ No blank canvas, no 40-box diagrams, no hand-waving.
 
 <br />
 
-<img src="docs/images/map.png" alt="The story map: a startup growth arc from 100 users to 10 million" width="860" />
+<img src="docs/images/map.png" alt="The story map: a startup growth arc from launch to 10 million users" width="860" />
+
+<sub><b>Story</b> · <b>Shifts</b> · <b>API design</b> · <b>Case studies</b> · <b>Problems</b> · <b>Sandbox</b></sub>
 
 </div>
 
@@ -41,6 +43,12 @@ Every episode runs the same three-part loop:
 
 Every decision you make is recorded on a **branching timeline**. Rewind, take the other path, and compare the two designs side by side.
 
+<div align="center">
+<img src="docs/images/lesson.png" alt="A lesson in progress: the Instagram deep dive after sharding Postgres, with the mentor dock and a passing run" width="860" />
+<br />
+<sub>A level mid-run: live traffic on every wire, load bars on every block, and the mentor in the dock below.</sub>
+</div>
+
 ## What's inside
 
 ### Story: startup growth arcs
@@ -50,6 +58,23 @@ Each chapter follows a startup from its first user to millions.
 - **Chapter 1, Scale from Zero to Millions:** 15 episodes, from "your first request" through databases, back-of-the-envelope estimation, load balancers, replication, caching, CDNs, stateless services, multi-region, queues, monitoring and sharding. It ends with two capstones (a URL shortener and Pastebin at 10M users) and a test-out checkpoint.
 - **Chapter 2, Design the API:** resources and versioning, idempotency, and pagination plus rate limits. Services carry real endpoints, and your API choices change what the simulation does (retries really do double-charge without an Idempotency-Key).
 - **Services and machine size:** rename any block, and size a service Small, Medium or Large. Learn when to scale up and when to scale out.
+
+### API design: endpoints that change the simulation
+
+Services carry real endpoints. You write them in a small editor (method, path, and promises like Idempotency-Key, pagination, login and rate limits), and **Check my API** grades them rule by rule. Stuck? **Show solution** fills in a correct answer.
+
+Ideas that aren't boxes on the canvas, like idempotency keys or cursor pagination, get their own cards. Some come with a click-through diagram, and every card stays in your Collection once you've learned it.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/api.png" alt="The API card: three endpoints, two rules failing with an explanation of why" /></td>
+    <td width="50%"><img src="docs/images/idea.png" alt="The idempotency key card: a sequence diagram of a retried payment that is charged only once" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Every failing rule says what's wrong and why.</sub></td>
+    <td align="center"><sub>The idempotency key, one scene at a time.</sub></td>
+  </tr>
+</table>
 
 ### Shifts: boss fights
 
@@ -67,12 +92,24 @@ Eight standalone problems at easy, medium and hard, each with its own scenario a
 
 Instagram's photo feed (2010–2012) and Twitter's home timeline, worked through in interview order: scope, estimates, the API, the high-level design, then deep dives into what broke. After each decision, a side-by-side shows your design next to what the engineers actually shipped, both run through the same test, with links to their write-ups.
 
+<div align="center">
+<img src="docs/images/reveal.png" alt="How the experts did it: your design and Instagram's next to each other, both passing the same test" width="860" />
+</div>
+
 ### Sandbox: free build with what you've earned
 
 Only the blocks you've unlocked are available. The page shows your design's **breaking point**, meaning the most traffic it takes before 1% of requests fail, and which block gives out first. Kill any block to test failover. **Review** flags wiring mistakes and single points of failure right on the canvas. **Share** copies a link that carries the entire design.
 
 <div align="center">
-<img src="docs/images/sandbox.png" alt="Sandbox showing a design that breaks at 2,000 requests per second, with the first server to give out highlighted" width="860" />
+<img src="docs/images/sandbox.png" alt="Sandbox: a shared design with a breaking point of 5,000 requests per second and the first server to give out" width="860" />
+</div>
+
+### Collection: your building blocks
+
+Every block you unlock gets a card: what it does, when you'd reach for it, and the trade-offs. Locked ones tell you which episode earns them.
+
+<div align="center">
+<img src="docs/images/collection.png" alt="The collection: earned building blocks, locked ones with the episode that unlocks them, and the Ideas shelf" width="860" />
 </div>
 
 ### The simulation
@@ -97,18 +134,19 @@ npm run dev        # http://localhost:5173
 | `npm run lint` | oxlint |
 | `npm run build` | Type-check and production build |
 
-**Dev mode:** open `/?dev=1` (or tick "Dev mode" on the map in dev builds) and every lesson opens, with a **Skip section** button that completes the current section like an ideal learner. `/?dev=0` turns it off.
+> [!TIP]
+> **Want to look around without playing through?** Turn on **Debug mode** under Credits → Your data (or open `/?dev=1`). Every stage opens, and a **Skip section** button completes the current section like an ideal learner. `/?dev=0` turns it off.
 
 ## Project layout
 
 ```
 web/src/
   engine/     pure TS: sim solver + goals, lesson runner, API rules, timeline tree (unit tested)
-  content/    block catalog, chapters, problems, shifts (all typed data)
-  features/   canvas, mentor, timeline, lesson page, map, collection, sandbox, shift, api
+  content/    block catalog, chapters, problems, shifts, cases, ideas (all typed data)
+  features/   canvas, mentor, timeline, lesson, map, collection, sandbox, shift, api, cases, ideas
   store/      zustand stores (progress, runs) persisted through repo/
   repo/       storage interface, so a real backend can drop in later
-docs/         ROADMAP.md, CONTENT_GUIDE.md
+docs/         ROADMAP.md, CONTENT_GUIDE.md, images/
 ```
 
 **Stack:** React 19, TypeScript, Vite, Tailwind CSS 4, [React Flow](https://reactflow.dev) for the canvas, Zustand, Motion, Vitest and Playwright.
@@ -117,6 +155,8 @@ docs/         ROADMAP.md, CONTENT_GUIDE.md
 
 Progress lives in your browser's localStorage for now. Next up:
 
+- [x] Story chapters, shifts, problems and sandbox
+- [x] API design chapter and named services
 - [x] Case studies built on chapters 1 and 2
 - [ ] Accounts and sync (PocketBase)
 - [ ] AI mentor that sees your design and your timeline
