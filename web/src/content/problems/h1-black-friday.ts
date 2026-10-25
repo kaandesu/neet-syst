@@ -1,0 +1,107 @@
+import type { Problem } from '@/engine/problems/types'
+import { N, all, column, design, free, ids, phase } from '../chapters/ch1/_kit'
+
+const shop = (label: string, rps: number, extra = {}) =>
+  phase(label, rps, { writeRatio: 0.05, staticRatio: 0.6, taskRatio: 0.02, sessions: true, queryCost: 2, ...extra })
+const webs = column('web', 'web-server', 5, 600, 240, 100)
+
+export const blackFriday: Problem = {
+  id: 'black-friday',
+  number: 8,
+  title: 'Black Friday',
+  difficulty: 'hard',
+  tags: ['Everything', 'Chaos'],
+  speaker: 'oncall',
+  story: [
+    'Last year Northwind Outfitters was down for *three hours* on Black Friday. This year the CTO has a chair pulled up next to the on-call desk.',
+    'The storefront is image-heavy. Shoppers log in to see their cart. Every product page runs two queries. Order confirmation emails go out in the background. Marketing also wants “AI-powered recommendations” and a TikTok integration before the big day.',
+    'You get a blank canvas and the CTO’s one requirement: *nothing* that can break on its own is allowed to take the store down.',
+  ],
+  asks: [
+    'Survive doors-open traffic with p99 under 300 ms',
+    'Shoppers stay logged in',
+    'Any one server, the cache, or the primary database can die mid-rush',
+    'Order emails always go out',
+  ],
+  outOfScope: ['AI recommendations', 'TikTok integration', 'Multiple regions'],
+  numbers: [
+    { label: 'Regular Friday', value: '2,000 req/s' },
+    { label: 'Doors open', value: '8,000 req/s' },
+    { label: 'Static share', value: '60%' },
+    { label: 'Queries per page', value: '2' },
+    { label: 'Order emails', value: '2% of requests' },
+    { label: 'Box budget', value: '18' },
+  ],
+  skeleton: design([N('client', 'client', 0, 240)]),
+  palette: [
+    'dns',
+    'geo-dns',
+    'load-balancer',
+    'web-server',
+    'sql-db',
+    'nosql-db',
+    'read-replica',
+    'cache',
+    'cdn',
+    'object-storage',
+    'session-store',
+    'message-queue',
+    'worker',
+    'shard-router',
+    'monitoring',
+  ],
+  goals: [
+    { kind: 'maxErrorRate', value: 0.01 },
+    { kind: 'maxP99', value: 300 },
+    { kind: 'queueStable' },
+    { kind: 'maxBlocks', value: 18 },
+  ],
+  par: 17,
+  tests: [
+    { label: 'A regular Friday', phases: [shop('Regular Friday', 2000)] },
+    { label: 'Doors open', phases: [shop('Doors open', 8000)] },
+    { label: 'A web server dies at the peak', hidden: true, phases: [shop('Web server down', 8000, { failures: [{ block: 'web-server', nth: 0 }] })] },
+    { label: 'The cache node restarts', hidden: true, phases: [shop('Cache down', 6000, { failures: [{ block: 'cache' }] })] },
+    { label: 'The primary database dies', hidden: true, phases: [shop('Primary DB down', 6000, { failures: [{ block: 'sql-db' }] })] },
+  ],
+  hints: [
+    { text: 'Split the traffic first: 60% is static, 2% is slow background work, the rest is pages. Each kind belongs on a different path.' },
+    { text: 'Count the dynamic load: 8,000 × 40% = 3,200 page views/s, each doing 2 queries. Then ask what happens when any single box is removed.' },
+    { text: 'CDN + object storage for static; LB + enough servers to lose one; cache + replicas so the DB survives both a cache restart and a primary failure; a session store; a queue with workers for emails.' },
+  ],
+  solution: free(
+    [
+      N('client', 'client', 0, 240),
+      N('dns', 'dns', 180, 240),
+      N('cdn', 'cdn', 180, 520),
+      N('store', 'object-storage', 400, 600),
+      N('lb', 'load-balancer', 400, 240),
+      ...webs,
+      N('sess', 'session-store', 840, 0),
+      N('cache', 'cache', 840, 120),
+      N('db', 'sql-db', 840, 260),
+      N('rep1', 'read-replica', 1060, 200),
+      N('rep2', 'read-replica', 1060, 320),
+      N('q', 'message-queue', 840, 420),
+      N('k1', 'worker', 1060, 440),
+      N('k2', 'worker', 1060, 560),
+    ],
+    [
+      ['client', 'dns'],
+      ['dns', 'lb'],
+      ['client', 'cdn'],
+      ['cdn', 'store'],
+      ...all(['lb'], ids(webs)),
+      ...all(ids(webs), ['sess', 'cache', 'db', 'q']),
+      ['db', 'rep1'],
+      ['db', 'rep2'],
+      ...all(['q'], ['k1', 'k2']),
+    ],
+  ),
+  editorial: [
+    'Static (60%) goes to the CDN, so the servers only see 3,200 req/s. Five servers handle that, and four still cope when one dies at the peak (four alone would run at ~100% and latency explodes).',
+    'Pages do 2 queries: ~6,400 ops/s at peak. The cache absorbs most, but when it restarts the database tier sees the raw load. The primary plus two replicas share it, and a replica is promoted if the primary dies.',
+    'A session store keeps logins alive across server failures. The queue and two workers send 160 emails/s, with headroom for spikes.',
+    'The out-of-scope list is a test too. Interviewers love asking about recommendations; the right move is to say “not on the critical path, separate service” and move on.',
+  ],
+}
