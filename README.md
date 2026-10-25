@@ -51,6 +51,12 @@ Every episode runs the same three-part loop:
 | 2 | **Drill** | A tiny, focused build. You place and wire the new block on a guided canvas, with ghost slots showing where things go. |
 | 3 | **Level** | A real scenario. Run the traffic and watch your design hold or fall over. |
 
+<div align="center">
+<img src="docs/images/ada_infra.png" alt="Ada, the mentor, briefing the multiple data centers episode: a full stack is racked in Frankfurt, but DNS still sends everyone to the US" width="860" />
+<br />
+<sub>Ada sets up the problem before you touch anything. Here the Frankfurt region is built, but DNS doesn't know about it yet.</sub>
+</div>
+
 Every decision you make is recorded on a **branching timeline**. Rewind, take the other path, and compare the two designs side by side.
 
 <div align="center">
