@@ -17,7 +17,9 @@ No blank canvas, no 40-box diagrams, no hand-waving.
 
 <br />
 
-<img src="docs/images/map.png" alt="The story map: a startup growth arc from launch to 10 million users" width="860" />
+<a href="docs/video/neet-syst-intro.mp4"><img src="docs/video/preview.gif" alt="neet·syst intro film: the logo reveal, then a load balancer wired in and the run going from failing to healthy. Click to watch the full minute." width="860" /></a>
+
+<sub>▶ <a href="docs/video/neet-syst-intro.mp4"><b>Watch the 1-minute intro</b></a></sub>
 
 <sub><b>Story</b> · <b>Shifts</b> · <b>API design</b> · <b>Case studies</b> · <b>Problems</b> · <b>Sandbox</b></sub>
 
