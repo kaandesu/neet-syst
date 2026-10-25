@@ -14,9 +14,12 @@
     <title>neet·syst: learn system design</title>
     <script>
       try {
-        var t = JSON.parse(localStorage.getItem('neet-syst:progress') || '{}').state?.theme
-        var dark = t === 'dark' || ((!t || t === 'system') && matchMedia('(prefers-color-scheme: dark)').matches)
+        var s = JSON.parse(localStorage.getItem('neet-syst:progress') || '{}').state || {}
+        var t = s.theme
+        var skin = s.skin || 'current'
+        var dark = skin !== 'current' || t === 'dark' || ((!t || t === 'system') && matchMedia('(prefers-color-scheme: dark)').matches)
         document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+        document.documentElement.dataset.skin = skin
       } catch (e) {}
     </script>
   </head>

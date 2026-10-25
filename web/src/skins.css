@@ -1,0 +1,472 @@
+/*
+ * Whole-app skins, set by <html data-skin>. `current` is the default look in index.css.
+ * Each skin swaps the colour tokens, then restyles the shared pieces (panels, buttons,
+ * canvas nodes) that tokens alone can't reach. Unlayered on purpose: these rules win
+ * over Tailwind utilities.
+ */
+
+/* ── Shared by both pixel skins ──────────────────────────────────────────────── */
+
+[data-skin='pixel'],
+[data-skin='factory'] {
+  --font-pixel: 'VT323', ui-monospace, monospace;
+  --font-pixel-h: 'Press Start 2P', ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+[data-skin='pixel'] body,
+[data-skin='factory'] body {
+  font-family: var(--font-pixel);
+  /* VT323 runs small; match its x-height to the sans it replaces so sizes stay readable. */
+  font-size-adjust: ex-height 0.53;
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
+}
+
+:is([data-skin='pixel'], [data-skin='factory']) :is(.font-sans, .font-mono) {
+  font-family: var(--font-pixel);
+}
+
+:is([data-skin='pixel'], [data-skin='factory']) :is(h1, h2, .app-brand) {
+  font-family: var(--font-pixel-h);
+  font-size-adjust: none;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+}
+:is([data-skin='pixel'], [data-skin='factory']) h1 {
+  font-size: 22px;
+}
+:is([data-skin='pixel'], [data-skin='factory']) h2 {
+  font-size: 13px;
+}
+:is([data-skin='pixel'], [data-skin='factory']) .app-brand {
+  font-size: 12px;
+}
+
+/* No rounded corners anywhere: everything snaps to the pixel grid. */
+:is([data-skin='pixel'], [data-skin='factory']) :is(*, ::before, ::after) {
+  border-radius: 0 !important;
+}
+
+:is([data-skin='pixel'], [data-skin='factory']) .react-flow__handle:not(.body-handle) {
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border: 2px solid #000;
+}
+
+/* The small id line under each block name is unreadable in VT323 at 10px. */
+:is([data-skin='pixel'], [data-skin='factory']) .block-node .font-mono {
+  font-size: 13px;
+}
+:is([data-skin='pixel'], [data-skin='factory']) .react-flow__attribution {
+  background: transparent;
+  opacity: 0.4;
+}
+
+/* ── NEET.SYS · pixel / ASCII terminal ───────────────────────────────────────── */
+
+[data-skin='pixel'] {
+  --bg: #10121c;
+  --surface: #171a2b;
+  --surface-2: #222640;
+  --ink: #e8e6ff;
+  --muted: #8a8fb8;
+  --line: #3a3e66;
+  --accent: #ffb000;
+  --accent-soft: #3a2c05;
+  --accent-ink: #1a1200;
+  --good: #7cff6b;
+  --good-soft: #15301a;
+  --warn: #ff4fd8;
+  --warn-soft: #3a1535;
+  --bad: #ff4f4f;
+  --bad-soft: #3d1515;
+  --canvas: #07080d;
+  --grid: rgb(124 255 107 / 0.16);
+  --shadow: 4px 4px 0 0 #000;
+}
+
+[data-skin='pixel'] body {
+  background-color: var(--bg);
+  background-image: radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 6px 6px;
+}
+
+/* CRT scanlines + vignette over the whole screen. */
+[data-skin='pixel'] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.18) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / 0.4));
+  animation: px-flicker 6s infinite steps(1);
+}
+
+[data-skin='pixel'] h1 {
+  text-shadow:
+    3px 3px 0 var(--warn),
+    5px 5px 0 #000;
+}
+[data-skin='pixel'] .app-header {
+  background: #0a0b12;
+  border-color: #000;
+  box-shadow: 0 4px 0 0 #000;
+}
+/* Cards and panels: a notched light frame with a hard drop shadow. */
+[data-skin='pixel'] .shadow-card {
+  box-shadow:
+    0 -3px 0 0 var(--line),
+    0 3px 0 0 var(--line),
+    -3px 0 0 0 var(--line),
+    3px 0 0 0 var(--line),
+    6px 8px 0 0 #000;
+}
+
+[data-skin='pixel'] .ui-btn {
+  font-family: var(--font-pixel-h);
+  font-size: 10px;
+  font-size-adjust: none;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+[data-skin='pixel'] .ui-btn:is([data-variant='primary'], [data-variant='good']) {
+  box-shadow:
+    inset -3px -3px 0 0 rgb(0 0 0 / 0.3),
+    inset 3px 3px 0 0 rgb(255 255 255 / 0.4),
+    0 0 0 3px #000,
+    5px 6px 0 0 #000;
+}
+[data-skin='pixel'] .ui-btn[data-variant='good'] {
+  color: #07080d;
+}
+[data-skin='pixel'] .ui-btn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+}
+
+[data-skin='pixel'] .block-icon-ascii {
+  font-family: 'JetBrains Mono', monospace;
+  font-size-adjust: none;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  background: #07080d;
+  box-shadow: inset 0 0 0 2px currentColor;
+  text-shadow: 0 0 6px currentColor;
+}
+
+[data-skin='pixel'] .block-node {
+  --st: #4a4f78;
+  background: #10121c;
+  border: 0;
+  box-shadow:
+    inset 0 0 0 2px var(--st),
+    4px 4px 0 0 #000;
+  text-transform: uppercase;
+}
+[data-skin='pixel'] .block-node[data-status='ok'] {
+  --st: var(--good);
+}
+[data-skin='pixel'] .block-node[data-status='warm'] {
+  --st: var(--accent);
+}
+[data-skin='pixel'] .block-node[data-status='hot'] {
+  --st: var(--warn);
+  animation: px-node-blink 0.6s steps(1) infinite;
+}
+[data-skin='pixel'] .block-node[data-status='down'] {
+  --st: var(--bad);
+}
+@keyframes px-node-blink {
+  50% {
+    box-shadow:
+      inset 0 0 0 2px #fff,
+      4px 4px 0 0 #000;
+  }
+}
+
+/* ── Factory · pixel factory floor ───────────────────────────────────────────── */
+
+[data-skin='factory'] {
+  --bg: #2e3033;
+  --surface: #74512f;
+  --surface-2: #5c3e22;
+  --ink: #f6ecd4;
+  --muted: #d8c9a3;
+  --line: #2b1d10;
+  --accent: #ffb000;
+  --accent-soft: #4a3810;
+  --accent-ink: #1d1d1d;
+  --good: #5ad04a;
+  --good-soft: #24401c;
+  --warn: #ff8a2a;
+  --warn-soft: #4a2a10;
+  --bad: #ff5a4a;
+  --bad-soft: #4a1a14;
+  --canvas: #8a8d91;
+  --grid: #777a7e;
+  --shadow:
+    0 0 0 3px #2b1d10,
+    6px 6px 0 3px rgb(0 0 0 / 0.3);
+}
+
+/* Steel tread-plate floor outside, planks on every panel. */
+[data-skin='factory'] body {
+  background-color: #2e3033;
+  background-image:
+    linear-gradient(45deg, transparent 42%, #3a3d41 42% 58%, transparent 58%),
+    linear-gradient(-45deg, transparent 42%, #34373a 42% 58%, transparent 58%);
+  background-size: 24px 24px;
+  background-position:
+    0 0,
+    12px 12px;
+}
+[data-skin='factory'] .bg-surface {
+  background-image: repeating-linear-gradient(to bottom, transparent 0 22px, rgb(0 0 0 / 0.18) 22px 25px);
+}
+
+[data-skin='factory'] :is(h1, h2) {
+  color: var(--accent);
+  text-shadow: 2px 2px 0 #000;
+}
+[data-skin='factory'] .app-header {
+  background: #3a3c3f;
+  border-color: #1d1d1d;
+  box-shadow:
+    inset 0 -4px 0 #2a2b2d,
+    0 4px 0 rgb(0 0 0 / 0.3);
+  background-image: none;
+}
+/* Hazard stripe under the header. */
+[data-skin='factory'] .app-header::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -6px 0;
+  height: 6px;
+  background: repeating-linear-gradient(45deg, #ffb000 0 8px, #1d1d1d 8px 16px);
+}
+[data-skin='factory'] .ui-btn {
+  font-family: var(--font-pixel-h);
+  font-size: 9px;
+  font-size-adjust: none;
+  font-weight: 400;
+  text-transform: uppercase;
+  background-image: none;
+}
+[data-skin='factory'] .ui-btn:is([data-variant='primary'], [data-variant='secondary']) {
+  box-shadow:
+    inset -3px -3px 0 rgb(0 0 0 / 0.3),
+    inset 3px 3px 0 rgb(255 255 255 / 0.35),
+    0 0 0 3px #1d1d1d;
+}
+[data-skin='factory'] .ui-btn[data-variant='secondary'] {
+  background: #9a9da1;
+  color: #111;
+  border: 0;
+}
+[data-skin='factory'] .ui-btn[data-variant='good'] {
+  color: #111;
+  box-shadow:
+    inset -3px -3px 0 rgb(0 0 0 / 0.3),
+    inset 3px 3px 0 rgb(255 255 255 / 0.35),
+    0 0 0 3px #1d1d1d;
+}
+[data-skin='factory'] .ui-btn:active:not(:disabled) {
+  transform: translateY(2px);
+}
+
+[data-skin='factory'] .block-icon {
+  box-shadow: 0 0 0 2px #1d1d1d;
+}
+
+/* Machines: a bevelled cream housing with a status lamp in the corner. */
+[data-skin='factory'] .block-node {
+  --st: #555;
+  --muted: #5a5346;
+  background: #cfc8b6;
+  background-image: none;
+  color: #222;
+  border: 0;
+  box-shadow:
+    inset -4px -4px 0 #8f887a,
+    inset 4px 4px 0 #f0eadb,
+    0 0 0 3px #1d1d1d,
+    6px 6px 0 3px rgb(0 0 0 / 0.3);
+  text-transform: uppercase;
+}
+[data-skin='factory'] .block-node::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 7px;
+  height: 7px;
+  background: var(--st);
+  box-shadow: 0 0 0 2px #1d1d1d;
+}
+[data-skin='factory'] .block-node[data-status='ok'] {
+  --st: #5ad04a;
+}
+[data-skin='factory'] .block-node[data-status='warm'] {
+  --st: #ffb000;
+}
+[data-skin='factory'] .block-node[data-status='hot'] {
+  --st: #ff5a2a;
+  animation: fac-shake 0.12s steps(2) infinite;
+}
+[data-skin='factory'] .block-node[data-status='down'] {
+  --st: #d62d2d;
+  filter: brightness(0.5) saturate(0.3);
+}
+/* Load badges hang off the machine's housing: dark plates with cream text. */
+[data-skin='factory'] .block-node .bg-surface {
+  --muted: #d8c9a3;
+  background: #2b1d10;
+  background-image: none;
+}
+[data-skin='factory'] .block-node[data-status='hot'] .fac-chimney i {
+  background: #4a4a4a;
+  animation-duration: 0.9s;
+}
+
+/* Conveyor-belt links (see FlowEdge). */
+.fac-rail {
+  stroke: #262626;
+  stroke-width: 14;
+}
+.fac-belt {
+  animation: fac-belt 0.45s linear infinite;
+}
+.fac-crate {
+  fill: #b07a3e;
+  stroke: #4f3214;
+  stroke-width: 2;
+}
+
+/* ── Lesson stage: visual-novel dock, portraits, blocking cards ─────────────── */
+
+/* The dialogue box: a steel control panel with a hazard stripe along its top edge. */
+[data-skin='factory'] .vn-dock {
+  background: #3a3c3f;
+  background-image: none;
+  border-top: 0;
+  box-shadow:
+    inset 0 4px 0 #4a4d51,
+    0 -4px 0 rgb(0 0 0 / 0.3);
+}
+[data-skin='factory'] .vn-dock::before {
+  content: '';
+  position: absolute;
+  inset: -6px 0 auto 0;
+  height: 6px;
+  background: repeating-linear-gradient(45deg, #ffb000 0 8px, #1d1d1d 8px 16px);
+}
+[data-skin='factory'] .vn-dock .text-\[15px\] {
+  font-size: 19px;
+  line-height: 1.35;
+}
+[data-skin='factory'] .vn-portrait {
+  box-shadow:
+    0 0 0 3px #1d1d1d,
+    5px 5px 0 3px rgb(0 0 0 / 0.3);
+}
+/* The bevel sits over the face, so it reads as a frame rather than disappearing behind the picture. */
+[data-skin='factory'] .vn-portrait::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset -4px -4px 0 rgb(0 0 0 / 0.35),
+    inset 4px 4px 0 rgb(255 255 255 / 0.18);
+}
+[data-skin='factory'] .vn-nameplate {
+  font-family: var(--font-pixel-h);
+  font-size: 9px;
+  font-size-adjust: none;
+  font-weight: 400;
+  text-transform: uppercase;
+  box-shadow: 0 0 0 2px #1d1d1d;
+}
+/* Blocking cards: a crate lid you have to deal with before the floor moves again. */
+[data-skin='factory'] .vn-modal {
+  box-shadow:
+    0 0 0 4px #1d1d1d,
+    0 0 0 8px #ffb000,
+    0 0 0 11px #1d1d1d,
+    10px 10px 0 8px rgb(0 0 0 / 0.35);
+}
+[data-skin='factory'] .vn-modal-head {
+  background: repeating-linear-gradient(45deg, #ffb000 0 10px, #e09a00 10px 20px);
+  color: #1d1d1d;
+}
+[data-skin='factory'] .vn-modal-head :is(.text-muted, .text-accent, .text-good) {
+  color: #1d1d1d;
+}
+[data-skin='factory'] .vn-side {
+  background: #26282b;
+}
+
+/* "Which part breaks first?": a yellow work order pinned over the floor. */
+[data-skin='factory'] .pick-banner {
+  box-shadow:
+    inset -3px -3px 0 rgb(0 0 0 / 0.25),
+    inset 3px 3px 0 rgb(255 255 255 / 0.35),
+    0 0 0 3px #1d1d1d,
+    6px 6px 0 3px rgb(0 0 0 / 0.3);
+}
+[data-skin='factory'] .pick-banner .text-\[16px\] {
+  font-family: var(--font-pixel-h);
+  font-size: 11px;
+  font-size-adjust: none;
+  line-height: 1.5;
+}
+[data-skin='factory'] .node-tag {
+  text-transform: none;
+}
+
+/* Boss rows on the story path: a red-and-black hazard edge. */
+[data-skin='factory'] .shift-row::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: repeating-linear-gradient(45deg, #ff5a4a 0 6px, #1d1d1d 6px 12px);
+}
+
+/* ── Header skin picker ──────────────────────────────────────────────────────── */
+
+:is([data-skin='pixel'], [data-skin='factory']) .skin-picker button {
+  font-size: 15px;
+}
+[data-skin='pixel'] .skin-picker-on {
+  color: var(--accent);
+}
+
+/* Also defined in design.css; repeated so the skins never depend on that page's stylesheet. */
+@keyframes px-flicker {
+  0%,
+  96%,
+  100% {
+    opacity: 1;
+  }
+  97% {
+    opacity: 0.85;
+  }
+  99% {
+    opacity: 0.9;
+  }
+}
+@keyframes fac-shake {
+  50% {
+    transform: translate(2px, -1px);
+  }
+}
+@keyframes fac-belt {
+  to {
+    stroke-dashoffset: -10;
+  }
+}

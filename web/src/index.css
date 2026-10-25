@@ -104,11 +104,65 @@ body {
   opacity: 0;
   transition: opacity 120ms;
 }
+.react-flow__handle::before {
+  /* A bigger invisible grab area than the 12px dot. */
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border-radius: 9999px;
+}
+.react-flow__handle.react-flow__handle-right {
+  opacity: 0.4;
+}
 .react-flow__node:hover .react-flow__handle,
 .react-flow__handle.connectingfrom,
 .react-flow__handle.connectingto,
 .connecting .react-flow__handle {
   opacity: 1;
+}
+/* Focus: the clicked block gets a solid outline, its direct neighbours a faint one.
+   Outlines, not rings, so skins that restyle a block's box-shadow keep them. */
+.block-node[data-focus='selected'] {
+  outline: 3px solid var(--accent);
+  outline-offset: 5px;
+}
+.block-node[data-focus='neighbor'] {
+  outline: 2px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  outline-offset: 4px;
+}
+.block-node[data-focus='marked'] {
+  outline: 4px solid var(--accent);
+  outline-offset: 6px;
+  animation: mark-pulse 1.2s ease-in-out infinite;
+}
+@keyframes mark-pulse {
+  50% {
+    outline-offset: 10px;
+  }
+}
+
+/* Full-body drop target shown on other blocks while a wire is being dragged. */
+.react-flow__handle.body-handle {
+  inset: -4px;
+  width: auto;
+  height: auto;
+  transform: none;
+  border: 2px dashed transparent;
+  border-radius: 1.1rem;
+  background: transparent;
+  opacity: 1;
+  z-index: 5;
+}
+.react-flow__handle.body-handle::before {
+  display: none;
+}
+.react-flow__handle.body-handle.connectingto {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+}
+.react-flow__handle.body-handle.connectingto:not(.valid) {
+  border-color: var(--bad);
+  background: color-mix(in oklab, var(--bad) 8%, transparent);
 }
 .react-flow__node-zone,
 .react-flow__node-ghost {
@@ -139,4 +193,12 @@ body {
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
+}
+
+/* "Which part…?" mode: the pane shows a crosshair and blocks read as buttons. */
+.pick-mode .react-flow__pane {
+  cursor: crosshair;
+}
+.pick-mode .react-flow__handle {
+  visibility: hidden;
 }
