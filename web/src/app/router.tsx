@@ -1,4 +1,5 @@
 import { createBrowserRouter, Outlet } from 'react-router'
+import { CaseListPage } from '@/features/cases/CaseListPage'
 import { CollectionPage } from '@/features/collection/CollectionPage'
 import { DesignPage } from '@/features/design/DesignPage'
 import { LessonPage } from '@/features/lesson/LessonPage'
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
       { path: '/shift/:shiftId', element: <ShiftPage /> },
       { path: '/problems', element: <ProblemListPage /> },
       { path: '/problems/:problemId', element: <ProblemPage /> },
+      { path: '/cases', element: <CaseListPage /> },
       { path: '/collection', element: <CollectionPage /> },
       { path: '/sandbox', element: <SandboxPage /> },
       { path: '/credits', element: <CreditsPage /> },

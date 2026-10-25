@@ -20,6 +20,8 @@ export interface WhatIf {
 }
 
 export type DesignPatch = {
+  /** Applied first, so a branch can re-route traffic (e.g. app → DB becomes app → shard router). */
+  removeEdges?: { from: string; to: string }[]
   addNodes?: DNode[]
   addEdges?: { from: string; to: string }[]
   setProps?: { id: string; props: Partial<Pick<DNode, 'sticky' | 'label' | 'tier' | 'api'>> }[]
@@ -46,6 +48,11 @@ export type Step =
    * so what they write stays on the service for later steps. `solution` is used by the content tests.
    */
   | { t: 'api'; node: string; text: string; rules: ApiRule[]; solution: Endpoint[]; hints?: string[] }
+  /**
+   * Case studies: after the learner commits, show what the experts actually built next to theirs.
+   * `expert` is drawn beside the learner's design and run through the section's latest test.
+   */
+  | { t: 'reveal'; title: string; text: string; expert?: Design; sources?: { label: string; url: string }[] }
   /** Pick the right reason. Wrong answers explain why they're tempting. */
   | {
       t: 'reason'
@@ -87,6 +94,8 @@ export type SectionKind = 'concept' | 'drill' | 'level'
 export interface Section {
   kind: SectionKind
   title: string
+  /** Tab name in the lesson header; defaults to Concept / Drill / Level. */
+  tab?: string
   startDesign: Design
   /** Blocks shown in the palette tray for this section. */
   palette: BlockId[]
@@ -97,7 +106,7 @@ export interface Section {
   steps: Step[]
 }
 
-export type LessonKind = 'unit' | 'capstone' | 'checkpoint' | 'incident'
+export type LessonKind = 'unit' | 'capstone' | 'checkpoint' | 'incident' | 'case'
 
 export interface Lesson {
   id: string

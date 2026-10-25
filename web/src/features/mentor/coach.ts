@@ -55,6 +55,8 @@ export function whyText(c: CoachCtx): string | null {
     }
     case 'connect':
       return `Requests only travel along arrows. Until **${name(s.from)} → ${name(s.to)}** exists, the ${name(s.to)} never sees a single request.`
+    case 'reveal':
+      return 'There’s rarely one right answer. Comparing your call with a real one shows which trade-offs you saw and which you missed. That’s what interviewers probe.'
     case 'api':
       return '**Why does the API matter?** It’s the one part other teams and apps build against. Boxes can change behind it any time; a published endpoint is a promise you keep for years.'
     case 'configure':

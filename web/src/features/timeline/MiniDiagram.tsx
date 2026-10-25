@@ -36,7 +36,7 @@ export function MiniDiagram({ design, result, height = 220 }: { design: Design; 
           <rect width={W} height={H} rx={16} fill="var(--surface)" stroke={tone(n.id)} strokeWidth={3} />
           <circle cx={30} cy={H / 2} r={16} fill={`hsl(${BLOCKS[n.block].hue} 70% 85%)`} />
           <text x={56} y={H / 2 + 5} fontSize={16} fontWeight={700} fill="var(--ink)">
-            {BLOCKS[n.block].short}
+            {(n.label || BLOCKS[n.block].short).slice(0, 14)}
           </text>
         </g>
       ))}

@@ -1,5 +1,6 @@
 import { ArrowLeft, Check, ChevronRight, Crosshair, FastForward, Play, FlaskConical, Lock, Monitor, NotebookPen, RotateCcw, Trophy, Undo2 } from 'lucide-react'
 import { ApiCard } from '@/features/api/ApiCard'
+import { RevealCard } from '@/features/cases/RevealCard'
 import { motion } from 'motion/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router'
@@ -30,6 +31,7 @@ import { Dock, isBlocking, QuestionModal, SituationPanel, type FeedItem } from '
 import { designKey, useSimPlayback } from './useSimPlayback'
 
 const SECTION_LABEL = { concept: 'Concept', drill: 'Drill', level: 'Level' } as const
+const tabOf = (s: Section) => s.tab ?? SECTION_LABEL[s.kind]
 
 export function LessonPage() {
   const { lessonId = '', section } = useParams()
@@ -377,6 +379,8 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
         return <RequirementsCard step={step} answer={answer} active onDone={complete} onMiss={miss} />
       case 'estimate':
         return <EstimateCard step={step} answer={answer} active onDone={complete} onMiss={miss} />
+      case 'reveal':
+        return <RevealCard step={step} section={section} stepIndex={stepIndex} design={run.design} onDone={() => complete()} />
       case 'api': {
         const node = run.design.nodes.find((n) => n.id === step.node)
         return (
@@ -451,16 +455,19 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
   })()
 
   const nextLesson = (() => {
-    const ch = CHAPTERS.find((c) => c.id === lesson.chapter)
+    const c = CHAPTERS.findIndex((x) => x.id === lesson.chapter)
+    const ch = CHAPTERS[c]
     const i = ch?.lessons.findIndex((l) => l.id === lesson.id) ?? -1
-    return ch && i >= 0 ? ch.lessons[i + 1] : undefined
+    if (!ch || i < 0) return undefined
+    // The last episode of a chapter leads into the next chapter.
+    return ch.lessons[i + 1] ?? CHAPTERS[c + 1]?.lessons[0]
   })()
 
   return (
     <div className="flex h-full flex-col">
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-line bg-surface px-3">
-        <Link to="/" className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-semibold text-muted hover:bg-surface-2 hover:text-ink">
-          <ArrowLeft size={16} /> Map
+        <Link to={lesson.kind === 'case' ? '/cases' : '/'} className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-semibold text-muted hover:bg-surface-2 hover:text-ink">
+          <ArrowLeft size={16} /> {lesson.kind === 'case' ? 'Cases' : 'Map'}
         </Link>
         <div className="min-w-0">
           <div className="truncate text-[15px] leading-tight font-extrabold">{lesson.title}</div>
@@ -482,7 +489,7 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
                 )}
               >
                 {isDone ? <Check size={14} className="text-good" /> : !reachable ? <Lock size={13} /> : <span className="font-mono text-[11px]">{i + 1}</span>}
-                {SECTION_LABEL[s.kind]}
+                {tabOf(s)}
               </button>
             )
           })}
@@ -749,12 +756,12 @@ function SectionDone({
     <motion.div initial={{ scale: 0.96, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="rounded-2xl bg-good-soft p-4 ring-1 ring-good/30">
       <div className="flex items-center gap-2 font-extrabold text-good">
         {last ? <Trophy size={18} /> : <Check size={18} />}
-        {last ? `${lesson.title}: complete!` : `${SECTION_LABEL[lesson.sections[sectionIndex].kind]} complete`}
+        {last ? `${lesson.title}: complete!` : `${tabOf(lesson.sections[sectionIndex])} complete`}
       </div>
       <p className="mt-1 text-[13px] text-muted">
         {last
           ? 'Every decision you made is on the timeline below. Rewind any time to try a different path.'
-          : `Up next: ${SECTION_LABEL[lesson.sections[sectionIndex + 1].kind]}, ${lesson.sections[sectionIndex + 1].title}.`}
+          : `Up next: ${tabOf(lesson.sections[sectionIndex + 1])}, ${lesson.sections[sectionIndex + 1].title}.`}
       </p>
       <div className="mt-3 flex gap-2">
         {!last && (
@@ -767,8 +774,8 @@ function SectionDone({
             Next lesson
           </Button>
         )}
-        <Link to="/" className="inline-flex h-8 items-center rounded-xl px-3 text-sm font-semibold text-muted hover:bg-surface hover:text-ink">
-          Back to map
+        <Link to={lesson.kind === 'case' ? '/cases' : '/'} className="inline-flex h-8 items-center rounded-xl px-3 text-sm font-semibold text-muted hover:bg-surface hover:text-ink">
+          {lesson.kind === 'case' ? 'Back to cases' : 'Back to map'}
         </Link>
       </div>
     </motion.div>

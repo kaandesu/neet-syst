@@ -25,6 +25,9 @@ export function AppHeader() {
           <NavLink to="/problems" className={link}>
             Problems
           </NavLink>
+          <NavLink to="/cases" className={link}>
+            Cases
+          </NavLink>
           <NavLink to="/collection" className={link}>
             Collection
           </NavLink>

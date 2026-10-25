@@ -17,6 +17,8 @@ export function describeStep(step: Step | undefined, answer?: StepAnswer): strin
       return `Connected ${nm(step.from)} → ${nm(step.to)}`
     case 'disconnect':
       return `Removed ${nm(step.from)} → ${nm(step.to)}`
+    case 'reveal':
+      return 'Compared with the experts'
     case 'api':
       return 'Designed the API'
     case 'configure':

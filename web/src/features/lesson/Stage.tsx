@@ -21,7 +21,7 @@ export interface FeedItem {
 }
 
 /** Steps that stop the lesson until the learner answers them. They open as a card over the canvas. */
-export const isBlocking = (s: Step | undefined) => !!s && (s.t === 'concept' || s.t === 'reason' || s.t === 'fork' || s.t === 'requirements' || s.t === 'estimate' || s.t === 'api')
+export const isBlocking = (s: Step | undefined) => !!s && (s.t === 'concept' || s.t === 'reason' || s.t === 'fork' || s.t === 'requirements' || s.t === 'estimate' || s.t === 'api' || s.t === 'reveal')
 
 const CHIP_ICON: Record<ChipId, typeof Eye> = { why: CircleHelp, show: Eye, stuck: LifeBuoy }
 
@@ -147,6 +147,7 @@ const BLOCKING_LABEL: Record<string, string> = {
   requirements: 'Scope the problem',
   estimate: 'Estimate',
   api: 'Design the API',
+  reveal: 'How the experts did it',
 }
 
 /** A blocking step, centred over a dimmed canvas so it can't be missed. */
@@ -178,7 +179,7 @@ export function QuestionModal({
         initial={{ scale: 0.92, y: 12 }}
         animate={{ scale: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-        className={cn('vn-modal flex max-h-full w-full flex-col', step.t === 'api' ? 'max-w-3xl' : 'max-w-xl', 'overflow-hidden rounded-3xl bg-surface shadow-card')}
+        className={cn('vn-modal flex max-h-full w-full flex-col', step.t === 'api' || step.t === 'reveal' ? 'max-w-3xl' : 'max-w-xl', 'overflow-hidden rounded-3xl bg-surface shadow-card')}
       >
         <div className={cn('vn-modal-head flex items-center gap-3 px-5 py-3', concept ? 'bg-good-soft' : 'bg-accent-soft')}>
           <Portrait speaker={speaker} mood={mood} size={52} />
@@ -187,7 +188,7 @@ export function QuestionModal({
               {concept ? `★ ${BLOCKING_LABEL.concept}: ${BLOCKS[step.block].name}` : BLOCKING_LABEL[step.t]}
             </div>
             <div className="text-[13px] text-muted">
-              {who.name} {concept ? 'wants you to meet a new block.' : 'needs an answer before you go on.'}
+              {who.name} {concept ? 'wants you to meet a new block.' : step.t === 'reveal' ? 'shows you what was actually built.' : 'needs an answer before you go on.'}
             </div>
           </div>
         </div>
@@ -224,6 +225,8 @@ export function objectiveOf(step: Step | undefined): string {
       return step.question
     case 'estimate':
       return step.question
+    case 'reveal':
+      return `Compare your design: **${step.title}**.`
     default:
       return step.text
   }

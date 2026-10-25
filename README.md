@@ -63,6 +63,10 @@ Unscripted levels that open after milestone episodes. You get a starting design,
 
 Eight standalone problems at easy, medium and hard, each with its own scenario and goals. Bakery, leaderboard, receipts, short links, bank sync and Black Friday are in.
 
+### Case studies: what real teams built
+
+Instagram's photo feed (2010–2012) and Twitter's home timeline, worked through in interview order: scope, estimates, the API, the high-level design, then deep dives into what broke. After each decision, a side-by-side shows your design next to what the engineers actually shipped, both run through the same test, with links to their write-ups.
+
 ### Sandbox: free build with what you've earned
 
 Only the blocks you've unlocked are available. The page shows your design's **breaking point**, meaning the most traffic it takes before 1% of requests fail, and which block gives out first. Kill any block to test failover. **Review** flags wiring mistakes and single points of failure right on the canvas. **Share** copies a link that carries the entire design.
@@ -113,7 +117,7 @@ docs/         ROADMAP.md, CONTENT_GUIDE.md
 
 Progress lives in your browser's localStorage for now. Next up:
 
-- [ ] Case studies (classic interview problems) built on chapters 1 and 2
+- [x] Case studies built on chapters 1 and 2
 - [ ] Accounts and sync (PocketBase)
 - [ ] AI mentor that sees your design and your timeline
 - [ ] Agentic interviewer mode: "what happens if the cache dies?"

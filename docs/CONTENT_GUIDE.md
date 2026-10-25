@@ -67,6 +67,17 @@ cd web && npm test
 
 Register new lessons in the chapter's `index.ts`.
 
+## Case studies
+
+Case studies live in `web/src/content/cases/`, one file per system, registered in `index.ts`. Each one is a `CaseStudy`: company metadata plus a `Lesson` with `kind: 'case'`.
+
+- **Three sections, interview order:** Scope (`requirements`, `estimate`, `api`), High-level design (a free-build `simulate` with a `solution`), Deep dives (a failing replay, a `fork` or a fix, a passing run).
+- **Name the tabs** with `tab`, and the boxes with `label`, so the canvas reads like the real diagram.
+- **Reveal after every decision.** A `reveal` step takes the experts' `expert` design, their reasoning (`text`, paragraphs split by a blank line) and `sources`. Keep facts to what the linked write-ups say.
+- **Scale big numbers down** and say so in the briefing ("one box stands for a fleet").
+
+`src/content/cases.test.ts` checks that every section plays through as authored, that each `expert` design passes the test it is compared against, and that every fork branch passes.
+
 ## Problems (LeetCode-style track)
 
 Problems live in `web/src/content/problems/`, one file per problem, registered in `index.ts`. The type is `Problem` in `web/src/engine/problems/types.ts`.

@@ -13,7 +13,8 @@ Each step builds on the one before it, so case studies come last.
 3. **API design (done):** Chapter 2, "Design the API", opens after Chapter 1. Its episodes are resources and versioning, idempotency, and pagination plus rate limits.
    - Services carry endpoints (`DNode.api: Endpoint[]`), edited from the Inspector's API button or an `api` lesson step. Both are graded by rules in `engine/api/rules.ts`.
    - Endpoints change the simulation: `botRps` traffic is turned away only when every endpoint is rate limited, and `retryShare` writes run twice unless every POST takes an Idempotency-Key (the `noDuplicates` goal). An `api` goal checks one rule on one service.
-4. **Case studies (`/cases`):** step-by-step worked problems in interview order (requirements → estimates → API → high-level design → deep dives). At each decision the learner commits to a choice, then a `reveal` step shows the expert's pick and reasoning next to theirs. They use named services and API steps.
+4. **Case studies (done, `/cases`):** Instagram's photo feed and Twitter's home timeline. Each one is a `case` lesson with three tabs (Scope, High-level design, Deep dives) that use requirements, estimates, `api` steps, free builds and forks. A `reveal` step then draws the experts' design next to the learner's, runs both through the section's latest test, and cites sources.
+   - More cases to add: Discord messages (hot partitions, request coalescing), Netflix Open Connect, Shopify flash sales.
 
 ## 1. PocketBase backend
 

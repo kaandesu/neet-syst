@@ -105,7 +105,8 @@ export function removeEdges(design: Design, ids: string[]): Design {
 }
 
 export function applyPatch(design: Design, patch: DesignPatch): Design {
-  let next: Design = { nodes: [...design.nodes], edges: [...design.edges] }
+  const cut = patch.removeEdges ?? []
+  let next: Design = { nodes: [...design.nodes], edges: design.edges.filter((e) => !cut.some((c) => c.from === e.from && c.to === e.to)) }
   for (const n of patch.addNodes ?? []) {
     if (!next.nodes.some((x) => x.id === n.id)) next.nodes.push({ ...n })
   }
