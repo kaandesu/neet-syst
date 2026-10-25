@@ -17,6 +17,8 @@ export function describeStep(step: Step | undefined, answer?: StepAnswer): strin
       return `Connected ${nm(step.from)} → ${nm(step.to)}`
     case 'disconnect':
       return `Removed ${nm(step.from)} → ${nm(step.to)}`
+    case 'configure':
+      return step.label ? `Named it ${step.label}` : `Sized ${BLOCKS[step.block].short}`
     case 'reason': {
       const o = answer?.t === 'reason' ? step.options.find((x) => x.id === answer.optionId) : undefined
       return o ? `Reasoned: ${o.text.slice(0, 48)}${o.text.length > 48 ? '…' : ''}` : 'Reasoning'

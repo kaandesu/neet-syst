@@ -19,7 +19,20 @@ export function isActionDone(step: Step, design: Design): boolean {
   if (step.t === 'place') return design.nodes.filter((n) => n.block === step.block).length >= step.count
   if (step.t === 'connect') return countEdges(design, step.from, step.to) >= (step.count ?? 1)
   if (step.t === 'disconnect') return countEdges(design, step.from, step.to) === 0
+  if (step.t === 'configure') return design.nodes.some((n) => configured(n, step))
   return false
+}
+
+type CanvasStep = Extract<Step, { t: 'place' | 'connect' | 'disconnect' | 'configure' }>
+
+/** Steps the learner completes by changing the canvas, not by answering. */
+export const isCanvasAction = (step: Step): step is CanvasStep =>
+  step.t === 'place' || step.t === 'connect' || step.t === 'disconnect' || step.t === 'configure'
+
+function configured(n: DNode, step: Extract<Step, { t: 'configure' }>) {
+  if (n.block !== step.block) return false
+  if (step.label !== undefined && !n.label) return false
+  return step.tier === undefined || (n.tier ?? 'm') === step.tier
 }
 
 export function nextNodeId(design: Design, block: BlockId): string {
@@ -69,6 +82,23 @@ export function removeEdgesBetween(design: Design, from: BlockMatch, to: BlockMa
   }
 }
 
+/** Names a block or resizes a service. An empty label clears it. */
+export function setNodeProps(design: Design, id: string, props: Partial<Pick<DNode, 'label' | 'tier'>>): Design {
+  return {
+    ...design,
+    nodes: design.nodes.map((n) => {
+      if (n.id !== id) return n
+      const next = { ...n, ...props }
+      if (!next.label?.trim()) delete next.label
+      else next.label = next.label.trim().slice(0, MAX_LABEL)
+      if (!next.tier) delete next.tier
+      return next
+    }),
+  }
+}
+
+export const MAX_LABEL = 40
+
 export function removeEdges(design: Design, ids: string[]): Design {
   return { ...design, edges: design.edges.filter((e) => !ids.includes(e.id)) }
 }
@@ -109,6 +139,13 @@ function autoPlace(design: Design, step: Extract<Step, { t: 'place' }>): Design 
     d = addNode(d, step.block, pos.x, pos.y).design
   }
   return d
+}
+
+function autoConfigure(design: Design, step: Extract<Step, { t: 'configure' }>): Design {
+  if (isActionDone(step, design)) return design
+  const n = design.nodes.find((x) => x.block === step.block)
+  if (!n) return design
+  return setNodeProps(design, n.id, { ...(step.label !== undefined && { label: n.label || step.label }), ...(step.tier && { tier: step.tier }) })
 }
 
 function autoConnect(design: Design, step: Extract<Step, { t: 'connect' }>): Design {
@@ -165,6 +202,7 @@ export function autoPlay(section: Section, forkPick = 0): AutoPlayLog[] {
     if (step.t === 'place') design = autoPlace(design, step)
     if (step.t === 'connect') design = autoConnect(design, step)
     if (step.t === 'disconnect') design = removeEdgesBetween(design, step.from, step.to)
+    if (step.t === 'configure') design = autoConfigure(design, step)
     if (step.t === 'fork') design = applyPatch(design, step.options[Math.min(forkPick, step.options.length - 1)].patch)
     if (step.t === 'simulate') {
       if (step.solution) design = step.solution

@@ -26,6 +26,8 @@ A capstone replaces the guided steps with `requirements` and `estimate` steps, t
 - **Make both `fork` options valid.** The first option must pass the rest of the section, because tests auto-play option 0.
 - **Use round numbers.** Simulator capacities are in `web/src/engine/sim/specs.ts`: web server 1,000 units/s, SQL 2,000, a write costs 2, and so on.
 
+- **Naming and sizing.** A `configure` step asks the learner to rename a block (`label`: the suggested name; any name counts) or set a service's machine size (`tier`; an unsized service counts as Medium). Fork patches can set `label` and `tier` through `setProps`.
+
 ## Active learning hooks
 
 - **Predict before Run.** Every `simulate` step with `expect: 'fail'` asks the learner which part breaks first. This happens automatically when the solver finds a bottleneck. Set `predict: false` to skip it, for example when the failure is purely about latency.

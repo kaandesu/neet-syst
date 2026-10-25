@@ -1,10 +1,11 @@
 import { Activity, Trash2, X } from 'lucide-react'
 import { motion } from 'motion/react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { BLOCKS } from '@/content/blocks'
 import { explainNode } from '@/engine/sim/explain'
-import { SPECS } from '@/engine/sim/specs'
-import type { DNode, NodeResult, NodeStatus } from '@/engine/types'
+import { MAX_LABEL } from '@/engine/lesson/runner'
+import { capacityOf, SPECS, TIER_CAPACITY } from '@/engine/sim/specs'
+import type { DNode, NodeResult, NodeStatus, Tier } from '@/engine/types'
 import { cn } from '@/lib/cn'
 import { BlockIcon } from '@/ui/BlockIcon'
 
@@ -26,6 +27,7 @@ export function Inspector({
   blind,
   onClose,
   onDelete,
+  onEdit,
   actions,
 }: {
   node: DNode
@@ -35,6 +37,8 @@ export function Inspector({
   onClose: () => void
   /** Shows a remove button; left out for read-only canvases. Locked blocks never get one. */
   onDelete?: () => void
+  /** Rename the block or resize a service; left out for read-only canvases. */
+  onEdit?: (props: Partial<Pick<DNode, 'label' | 'tier'>>) => void
   /** Extra buttons under the details (the sandbox uses this for chaos). */
   actions?: ReactNode
 }) {
@@ -51,8 +55,15 @@ export function Inspector({
       <div className="flex items-start gap-2.5">
         <BlockIcon block={node.block} size={34} />
         <div className="min-w-0 flex-1">
-          <div className="text-[14px] leading-tight font-extrabold">{info.name}</div>
-          <div className="font-mono text-[11px] text-muted">{node.id}</div>
+          {onEdit && node.block !== 'client' ? (
+            <NameField key={node.id} value={node.label ?? ''} placeholder={info.name} onSave={(label) => onEdit({ label })} />
+          ) : (
+            <div className="text-[14px] leading-tight font-extrabold">{node.label || info.name}</div>
+          )}
+          <div className="font-mono text-[11px] text-muted">
+            {node.id}
+            {node.label && ` · ${info.name}`}
+          </div>
         </div>
         {onDelete && !node.locked && (
           <button
@@ -68,6 +79,8 @@ export function Inspector({
         </button>
       </div>
 
+      {node.block === 'service' && onEdit && <TierPicker value={node.tier ?? 'm'} onChange={(tier) => onEdit({ tier })} />}
+
       {blind ? (
         <div className="mt-3 flex gap-2 rounded-xl bg-surface-2 px-3 py-2 text-[13px] text-muted">
           <Activity size={15} className="mt-0.5 shrink-0" />
@@ -78,7 +91,7 @@ export function Inspector({
           <p className="text-muted">{info.tagline}</p>
           {!unlimited && (
             <p>
-              Capacity: <span className="font-mono font-bold">{fmt(SPECS[node.block].capacity)}</span> units/s
+              Capacity: <span className="font-mono font-bold">{fmt(capacityOf(node))}</span> units/s
             </p>
           )}
           <p className="text-[12px] text-muted">Run traffic to see what it's doing.</p>
@@ -118,6 +131,57 @@ function Stat({ label, value, bad }: { label: string; value: string; bad?: boole
     <div className={cn('rounded-xl bg-surface-2 px-2 py-1.5', bad && 'bg-bad-soft')}>
       <div className="font-mono text-[15px] font-bold">{value}</div>
       <div className="text-[10px] text-muted">{label}</div>
+    </div>
+  )
+}
+
+/** The block's name, edited in place. Saves on Enter or when focus leaves. */
+function NameField({ value, placeholder, onSave }: { value: string; placeholder: string; onSave: (v: string) => void }) {
+  const [draft, setDraft] = useState(value)
+  const save = () => draft.trim() !== value && onSave(draft)
+  return (
+    <input
+      value={draft}
+      placeholder={placeholder}
+      maxLength={MAX_LABEL}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={save}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') e.currentTarget.blur()
+        if (e.key === 'Escape') setDraft(value)
+      }}
+      className="-mx-1 w-full rounded-md bg-transparent px-1 text-[14px] leading-tight font-extrabold outline-none placeholder:text-ink hover:bg-surface-2 focus:bg-surface-2 focus:ring-2 focus:ring-accent/50"
+      aria-label="Block name"
+      title="Click to rename"
+    />
+  )
+}
+
+const TIERS: { id: Tier; label: string }[] = [
+  { id: 's', label: 'Small' },
+  { id: 'm', label: 'Medium' },
+  { id: 'l', label: 'Large' },
+]
+
+/** Machine size for a service: one bigger box, never more boxes. */
+function TierPicker({ value, onChange }: { value: Tier; onChange: (t: Tier) => void }) {
+  return (
+    <div className="mt-3" role="radiogroup" aria-label="Machine size">
+      <div className="mb-1 text-[11px] font-bold tracking-wide text-muted uppercase">Machine size</div>
+      <div className="grid grid-cols-3 gap-1 rounded-xl bg-surface-2 p-1">
+        {TIERS.map((t) => (
+          <button
+            key={t.id}
+            role="radio"
+            aria-checked={value === t.id}
+            onClick={() => onChange(t.id)}
+            className={cn('rounded-lg px-2 py-1 text-[12px] font-bold transition', value === t.id ? 'bg-surface text-ink shadow-card' : 'text-muted hover:text-ink')}
+          >
+            {t.label}
+            <span className="block font-mono text-[10px] font-medium text-muted">{fmt(TIER_CAPACITY[t.id])}/s</span>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

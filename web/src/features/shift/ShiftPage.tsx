@@ -14,7 +14,7 @@ import { Inspector } from '@/features/canvas/Inspector'
 import { Dock, Metrics, Panel, type FeedItem } from '@/features/lesson/Stage'
 import { designKey, useSimPlayback } from '@/features/lesson/useSimPlayback'
 import type { Callout } from '@/features/mentor/coach'
-import { removeNodes } from '@/engine/lesson/runner'
+import { removeNodes, setNodeProps } from '@/engine/lesson/runner'
 import { cn } from '@/lib/cn'
 import { useProgress } from '@/store/progress'
 import { shiftProgressOf, useShifts } from '@/store/shifts'
@@ -93,7 +93,7 @@ function ShiftView({ shift }: { shift: Shift }) {
 
   const label = (id: string) => {
     const n = design.nodes.find((x) => x.id === id)
-    return n ? `${BLOCKS[n.block].short} (${id})` : id
+    return n ? `${n.label || BLOCKS[n.block].short} (${id})` : id
   }
   const lint = lintDesign(design)
   const callouts: Callout[] = outcome && !outcome.survived
@@ -311,6 +311,7 @@ function ShiftView({ shift }: { shift: Shift }) {
                 result={!reference && showing ? showing.run.phases[showing.phase].nodes[inspectedNode.id] : undefined}
                 phaseLabel={!reference && showing ? showing.run.phases[showing.phase].label : undefined}
                 onClose={() => setInspected(null)}
+                onEdit={reference || playing ? undefined : (p) => edit(setNodeProps(design, inspectedNode.id, p))}
                 onDelete={
                   reference || playing
                     ? undefined

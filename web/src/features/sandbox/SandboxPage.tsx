@@ -13,7 +13,7 @@ import { findSpofs, runScenario, solvePhase } from '@/engine/sim/solver'
 import type { BlockId, Design } from '@/engine/types'
 import { DesignCanvas } from '@/features/canvas/DesignCanvas'
 import { Inspector } from '@/features/canvas/Inspector'
-import { removeNodes } from '@/engine/lesson/runner'
+import { removeNodes, setNodeProps } from '@/engine/lesson/runner'
 import { GoalBar, MetricsStrip } from '@/features/lesson/HUD'
 import type { Callout } from '@/features/mentor/coach'
 import { useMediaQuery } from '@/lib/useMediaQuery'
@@ -254,6 +254,7 @@ export function SandboxPage() {
                 result={result.nodes[inspectedNode.id]}
                 phaseLabel={phase.label}
                 onClose={() => setInspected(null)}
+                onEdit={(p) => sb.setDesign(setNodeProps(design, inspectedNode.id, p))}
                 onDelete={() => {
                   sb.setDesign(removeNodes(design, [inspectedNode.id]))
                   setInspected(null)

@@ -131,6 +131,8 @@ function CanvasInner({
           block: n.block,
           locked: n.locked,
           sticky: n.sticky,
+          label: n.label,
+          tier: n.tier,
           status: r?.status,
           utilization: r?.utilization,
           unlimited: (r?.capacity ?? 0) >= 1e9,

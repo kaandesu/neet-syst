@@ -20,6 +20,7 @@ import {
   INLINE_TASK_LATENCY_MS,
   SPECS,
   SPOF_EXEMPT,
+  capacityOf,
   roleOf,
   type Role,
 } from './specs'
@@ -512,7 +513,7 @@ export function solvePhase(
     else if (myRole === 'cdn') routed = routeCdn(ctx, id, f)
     else routed = routeTerminal(ctx, id, f, myRole)
 
-    const capacity = spec.capacity
+    const capacity = capacityOf(node)
     const u = routed.load / capacity
     let backlog: number | undefined
     if (myRole === 'worker') {

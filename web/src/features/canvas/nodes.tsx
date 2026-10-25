@@ -4,7 +4,7 @@ import { motion } from 'motion/react'
 import { BLOCKS } from '@/content/blocks'
 import { FactoryDeco } from '@/features/design/playground/decos'
 import type { Callout } from '@/features/mentor/coach'
-import type { BlockId, NodeStatus } from '@/engine/types'
+import type { BlockId, NodeStatus, Tier } from '@/engine/types'
 import { cn } from '@/lib/cn'
 import { BlockIcon } from '@/ui/BlockIcon'
 import { useSkin } from '@/ui/ThemeToggle'
@@ -16,6 +16,8 @@ export type BlockNodeData = {
   block: BlockId
   locked?: boolean
   sticky?: boolean
+  label?: string
+  tier?: Tier
   status?: NodeStatus
   utilization?: number
   inRps?: number
@@ -91,9 +93,16 @@ export function BlockNode({ id, data, selected }: NodeProps<BlockFlowNode>) {
       {skin === 'factory' && status && <FactoryDeco block={data.block} status={status} util={u} dropped={u > 1 ? 1 : 0} />}
       <BlockIcon block={data.block} size={36} />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13px] leading-tight font-bold">{info.short}</div>
+        <div className="truncate text-[13px] leading-tight font-bold" title={data.label}>
+          {data.label || info.short}
+        </div>
         <div className="truncate font-mono text-[10px] text-muted">{id}</div>
       </div>
+      {data.tier && (
+        <span className="absolute -top-2.5 left-2 rounded-full bg-accent-soft px-1.5 py-0.5 font-mono text-[9px] font-bold text-accent uppercase" title="Machine size">
+          {data.tier}
+        </span>
+      )}
       {data.sticky && (
         <span className="absolute -top-2.5 right-2 flex items-center gap-0.5 rounded-full bg-warn-soft px-1.5 py-0.5 text-[9px] font-bold text-warn">
           <Pin size={9} /> sticky

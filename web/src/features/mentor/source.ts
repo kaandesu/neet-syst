@@ -10,6 +10,8 @@ export interface MentorSource {
   hints(step: Step): string[]
 }
 
+const TIER_NAME = { s: 'Small', m: 'Medium', l: 'Large' } as const
+
 const name = (m: BlockMatch) => (Array.isArray(m) ? m.map((b) => BLOCKS[b].name).join(' or ') : BLOCKS[m].name)
 
 export const scriptedMentor: MentorSource = {
@@ -30,6 +32,12 @@ export const scriptedMentor: MentorSource = {
         ]
       case 'disconnect':
         return [...own, 'Click the arrow line itself to select it. A red ✕ appears; click it, or press Delete.']
+      case 'configure':
+        return [
+          ...own,
+          `Click the **${BLOCKS[step.block].name}** on the canvas to open its details.`,
+          [step.label !== undefined && 'click its name at the top to rename it', step.tier && `pick **${TIER_NAME[step.tier]}** under Machine size`].filter(Boolean).join(', then ').replace(/^./, (c) => c.toUpperCase()) + '.',
+        ]
       default:
         return own
     }

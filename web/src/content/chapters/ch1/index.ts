@@ -8,6 +8,7 @@ import { cache } from './05-cache'
 import { cdn } from './06-cdn'
 import { urlShortener } from './c1-url-shortener'
 import { stateless } from './07-stateless'
+import { services } from './07b-services'
 import { multiRegion } from './08-multi-region'
 import { queue } from './09-queue'
 import { monitoring } from './10-monitoring'
@@ -38,6 +39,7 @@ export const chapter1: Chapter = {
     cdn,
     urlShortener,
     stateless,
+    services,
     multiRegion,
     queue,
     monitoring,

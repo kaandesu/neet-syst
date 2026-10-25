@@ -1,7 +1,7 @@
 import { BLOCKS } from '@/content/blocks'
-import { nextEdgeId } from '@/engine/lesson/runner'
+import { MAX_LABEL, nextEdgeId } from '@/engine/lesson/runner'
 import { wouldCreateCycle } from '@/engine/sim/solver'
-import type { BlockId, Design } from '@/engine/types'
+import type { BlockId, Design, Tier } from '@/engine/types'
 import { DEFAULT_TRAFFIC, type Traffic } from './traffic'
 
 /** What a share link carries. Kills and challenge progress stay with the person who made it. */
@@ -12,7 +12,7 @@ export interface Shared {
 
 type Packed = {
   v: 1
-  n: [id: string, block: BlockId, x: number, y: number, flags?: number][]
+  n: [id: string, block: BlockId, x: number, y: number, flags?: number, label?: string, tier?: Tier][]
   e: [from: string, to: string][]
   t: Partial<Traffic>
 }
@@ -20,6 +20,7 @@ type Packed = {
 const LOCKED = 1
 const STICKY = 2
 const MAX_NODES = 200
+const TIERS: Tier[] = ['s', 'm', 'l']
 
 function toBase64Url(s: string) {
   const bytes = new TextEncoder().encode(s)
@@ -38,6 +39,8 @@ export function encodeShare({ design, traffic }: Shared): string {
     v: 1,
     n: design.nodes.map((n) => {
       const flags = (n.locked ? LOCKED : 0) | (n.sticky ? STICKY : 0)
+      if (n.tier) return [n.id, n.block, n.x, n.y, flags, n.label ?? '', n.tier]
+      if (n.label) return [n.id, n.block, n.x, n.y, flags, n.label]
       return flags ? [n.id, n.block, n.x, n.y, flags] : [n.id, n.block, n.x, n.y]
     }),
     e: design.edges.map((e) => [e.from, e.to]),
@@ -62,7 +65,7 @@ export function decodeShare(code: string): Shared | null {
   const ids = new Set<string>()
   for (const row of p.n) {
     if (!Array.isArray(row)) return null
-    const [id, block, x, y, flags = 0] = row
+    const [id, block, x, y, flags = 0, label, tier] = row
     if (typeof id !== 'string' || !id || id.length > 64 || ids.has(id) || !Object.hasOwn(BLOCKS, block)) return null
     ids.add(id)
     design.nodes.push({
@@ -72,6 +75,8 @@ export function decodeShare(code: string): Shared | null {
       y: num(y, -1e5, 1e5, 0),
       ...(flags & LOCKED ? { locked: true } : {}),
       ...(flags & STICKY ? { sticky: true } : {}),
+      ...(typeof label === 'string' && label.trim() ? { label: label.trim().slice(0, MAX_LABEL) } : {}),
+      ...(block === 'service' && TIERS.includes(tier as Tier) ? { tier } : {}),
     })
   }
   for (const row of p.e) {

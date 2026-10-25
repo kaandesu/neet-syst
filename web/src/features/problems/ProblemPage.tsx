@@ -11,7 +11,7 @@ import type { Problem } from '@/engine/problems/types'
 import type { Design } from '@/engine/types'
 import { DesignCanvas } from '@/features/canvas/DesignCanvas'
 import { Inspector } from '@/features/canvas/Inspector'
-import { removeNodes } from '@/engine/lesson/runner'
+import { removeNodes, setNodeProps } from '@/engine/lesson/runner'
 import { GoalBar, MetricsStrip } from '@/features/lesson/HUD'
 import type { Callout } from '@/features/mentor/coach'
 import { cn } from '@/lib/cn'
@@ -209,6 +209,7 @@ function ProblemView({ problem }: { problem: Problem }) {
                 result={phaseResult.nodes[inspectedNode.id]}
                 phaseLabel={phaseResult.label}
                 onClose={() => setInspected(null)}
+                onEdit={peek ? undefined : (p) => edit(setNodeProps(design, inspectedNode.id, p))}
                 onDelete={
                   peek
                     ? undefined

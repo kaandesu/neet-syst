@@ -17,6 +17,10 @@ export type BlockId =
   | 'worker'
   | 'monitoring'
   | 'shard-router'
+  | 'service'
+
+/** Size of a service box: small, medium or large. */
+export type Tier = 's' | 'm' | 'l'
 
 export type RegionId = 'na' | 'eu'
 
@@ -30,6 +34,10 @@ export interface DNode {
   locked?: boolean
   /** Load balancer only: route a user to the same server every time. */
   sticky?: boolean
+  /** A name the learner gave this block ("Auth Service"). */
+  label?: string
+  /** Service only: how big a machine it runs on. */
+  tier?: Tier
 }
 
 export interface DEdge {

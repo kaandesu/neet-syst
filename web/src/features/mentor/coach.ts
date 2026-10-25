@@ -55,6 +55,10 @@ export function whyText(c: CoachCtx): string | null {
     }
     case 'connect':
       return `Requests only travel along arrows. Until **${name(s.from)} → ${name(s.to)}** exists, the ${name(s.to)} never sees a single request.`
+    case 'configure':
+      return s.tier
+        ? `**Why resize?** A bigger machine handles more work with no new wiring. But it is still *one* machine: it costs more and it can still die.`
+        : `**Why a name?** In a real system, “web-server-2” tells nobody what breaks when it goes down. “Checkout Service” does.`
     case 'disconnect':
       return `Old arrows keep sending traffic the old way. While **${name(s.from)} → ${name(s.to)}** exists, requests skip what you just added.`
     case 'simulate':

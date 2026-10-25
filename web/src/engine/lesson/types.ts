@@ -1,5 +1,5 @@
 import type { Mood, SpeakerId } from '../mentor/reactions'
-import type { BlockId, DNode, Design, Goal, RegionZone, Scenario } from '../types'
+import type { BlockId, DNode, Design, Goal, RegionZone, Scenario, Tier } from '../types'
 
 /** Accept one block or any of several (e.g. "a database" = SQL or NoSQL). */
 export type BlockMatch = BlockId | BlockId[]
@@ -21,7 +21,7 @@ export interface WhatIf {
 export type DesignPatch = {
   addNodes?: DNode[]
   addEdges?: { from: string; to: string }[]
-  setProps?: { id: string; props: Partial<Pick<DNode, 'sticky'>> }[]
+  setProps?: { id: string; props: Partial<Pick<DNode, 'sticky' | 'label' | 'tier'>> }[]
 }
 
 export type Step =
@@ -35,6 +35,11 @@ export type Step =
   | { t: 'connect'; from: BlockMatch; to: BlockMatch; count?: number; text: string; hints?: string[] }
   /** Remove every edge between these blocks (select an arrow, press Delete). */
   | { t: 'disconnect'; from: BlockMatch; to: BlockMatch; text: string; hints?: string[] }
+  /**
+   * Name a block and/or size it in the Inspector. `label` is the suggested name (any name counts);
+   * `tier` must match, and an unsized service counts as medium.
+   */
+  | { t: 'configure'; block: BlockId; label?: string; tier?: Tier; text: string; hints?: string[] }
   /** Pick the right reason. Wrong answers explain why they're tempting. */
   | {
       t: 'reason'

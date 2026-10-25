@@ -9,7 +9,7 @@ Each step builds on the one before it, so case studies come last.
 **Shifts (boss fights), first version built:** after a milestone episode, an unscripted level opens on the story path. It has a short visual-novel briefing, a starting design, every block earned so far, and 3–4 waves of traffic (one of them chaos) that run back to back. Hints open only after the first failed run. Scoring: ★ survive, ★ at or under par blocks, ★ worst p99 under target. Content lives in `web/src/content/shifts/`; there are two so far (Monday Rush after replication, Front Page after the CDN).
 
 1. **Story page redesign:** each chapter is a startup growth arc (100 → 1M users). Lessons become episodes, listed next to a sticky detail panel that shows the hook, the blocks it unlocks, its sections and a Start button.
-2. **Custom named services:** `DNode.label`, plus a generic `service` block with a capacity tier, renamed from the Inspector ("Auth Service", "Feed Service").
+2. **Custom named services (done):** any block can be renamed from the Inspector (`DNode.label`). A generic `service` block has a machine size (`DNode.tier`: Small 500, Medium 1,000, Large 4,000 units/s). The "Services and machine size" episode (after stateless) unlocks it and teaches sizing up vs scaling out. Lessons check names and sizes with the `configure` step.
 3. **API design, in two parts:**
    - A short chapter on REST resources, idempotency, pagination, versioning and rate limits, with a new `api` step for writing endpoints, graded by rules.
    - An "API" tab on named services (`DNode.api: Endpoint[]`), checked by goals such as "POST /urls is idempotent".

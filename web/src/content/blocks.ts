@@ -1,6 +1,7 @@
 import {
   Activity,
   Archive,
+  Boxes,
   Cog,
   Database,
   DatabaseBackup,
@@ -313,6 +314,25 @@ export const BLOCKS: Record<BlockId, BlockInfo> = {
         'Adding shards later means moving data (resharding).',
       ],
       examples: 'Vitess, Citus, MongoDB sharding, app-level routing',
+    },
+  },
+  service: {
+    id: 'service',
+    name: 'Service',
+    short: 'Service',
+    icon: Boxes,
+    hue: 185,
+    tagline: 'One job of your app, running on its own',
+    concept: {
+      what: 'A piece of your application that owns one job (logins, checkout, the feed) and runs on its own machines. You name it after that job and pick how big a box it runs on.',
+      why: 'Once a team or a feature outgrows the one big app, splitting it lets each part scale, deploy and fail on its own.',
+      analogy: 'Departments in a company: billing and shipping each have their own desk and their own staff.',
+      tradeoffs: [
+        'A bigger box (sizing up) is simple, but it is still one box: when it dies, the job dies with it.',
+        'More boxes (scaling out) survive a crash, but need a load balancer and stateless code.',
+        'Every split adds a network hop and one more thing to monitor.',
+      ],
+      examples: 'Auth Service, Payments Service, Feed Service',
     },
   },
 }

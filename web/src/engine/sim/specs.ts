@@ -1,4 +1,4 @@
-import type { BlockId } from '../types'
+import type { BlockId, DNode, Tier } from '../types'
 
 export type Role =
   | 'entry'
@@ -35,6 +35,7 @@ export const SPECS: Record<BlockId, BlockSpec> = {
   'load-balancer': { role: 'lb', capacity: 20_000, latencyMs: 2 },
   'shard-router': { role: 'shard', capacity: 100_000, latencyMs: 1 },
   'web-server': { role: 'app', capacity: 1_000, latencyMs: 30 },
+  service: { role: 'app', capacity: 1_000, latencyMs: 30 },
   cache: { role: 'cache', capacity: 20_000, latencyMs: 1 },
   cdn: { role: 'cdn', capacity: INF, latencyMs: 10 },
   'sql-db': { role: 'db', capacity: 2_000, latencyMs: 10, storageGB: 1_000 },
@@ -65,6 +66,11 @@ export const INLINE_TASK_LATENCY_MS = 1500
 export const CROSS_REGION_MS = 120
 export const DEFAULT_CACHE_HIT = 0.8
 export const CDN_HIT = 0.95
+
+/** Work units per second for each service size. Large is a bigger box, not more boxes. */
+export const TIER_CAPACITY: Record<Tier, number> = { s: 500, m: 1_000, l: 4_000 }
+
+export const capacityOf = (n: Pick<DNode, 'block' | 'tier'>) => (n.tier ? TIER_CAPACITY[n.tier] : SPECS[n.block].capacity)
 
 export const roleOf = (block: BlockId): Role => SPECS[block].role
 

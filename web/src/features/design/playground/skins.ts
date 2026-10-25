@@ -31,6 +31,7 @@ export interface Skin {
 export const ASCII: Partial<Record<BlockId, string>> = {
   client: 'USR',
   'web-server': 'SRV',
+  service: 'SVC',
   'load-balancer': 'LB',
   'sql-db': 'SQL',
   'nosql-db': 'NOS',

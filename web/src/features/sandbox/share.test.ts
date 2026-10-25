@@ -25,6 +25,22 @@ describe('share links', () => {
     expect(decodeShare(encodeShare({ design, traffic }))).toEqual({ design, traffic })
   })
 
+  it('keep custom names and service sizes', () => {
+    const named: Design = {
+      nodes: [...design.nodes.slice(0, 2), { id: 'svc', block: 'service', x: 400, y: 120, label: 'Auth Service', tier: 'l' }, { id: 'web', block: 'web-server', x: 400, y: 280, label: 'Café ✓' }],
+      edges: [],
+    }
+    expect(decodeShare(encodeShare({ design: named, traffic }))?.design).toEqual(named)
+  })
+
+  it('drop a tier on anything but a service', () => {
+    const d = decodeShare(pack({ v: 1, n: [['a', 'web-server', 0, 0, 0, '', 'l'], ['b', 'service', 0, 0, 0, '', 'xl']], e: [], t: {} }))
+    expect(d?.design.nodes).toEqual([
+      { id: 'a', block: 'web-server', x: 0, y: 0 },
+      { id: 'b', block: 'service', x: 0, y: 0 },
+    ])
+  })
+
   it('survive the URL', () => {
     const url = shareUrl({ design, traffic }, 'https://neet.example')
     expect(url.startsWith('https://neet.example/sandbox#design=')).toBe(true)

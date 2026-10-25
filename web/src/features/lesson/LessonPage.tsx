@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router'
 import { BLOCKS } from '@/content/blocks'
 import { CHAPTERS, lessonById } from '@/content'
-import { applyPatch, autoPlay, idealAnswer, isActionDone, removeNodes, simulate, simulateWhatIf } from '@/engine/lesson/runner'
+import { applyPatch, autoPlay, idealAnswer, isActionDone, isCanvasAction, removeNodes, setNodeProps, simulate, simulateWhatIf } from '@/engine/lesson/runner'
 import type { BlockMatch, Lesson, Section, Step, StepAnswer, WhatIf } from '@/engine/lesson/types'
 import { bottleneck, culprits, explainNode } from '@/engine/sim/explain'
 import type { BlockId, Design, SimRun } from '@/engine/types'
@@ -232,7 +232,7 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
 
   // A gentle nudge after a long pause on a hands-on step; editing the canvas resets the clock.
   useEffect(() => {
-    if (!step || !(step.t === 'place' || step.t === 'connect' || step.t === 'disconnect')) return
+    if (!step || !isCanvasAction(step)) return
     const t = setTimeout(() => {
       const line = react(REACTIONS, { event: 'stuck', lessonKind: lesson.kind, attempts: 0 })
       if (line) setFeed((f) => (f.some((x) => x.stepIndex === stepIndex && x.text === line.text) ? f : [...f, { stepIndex, ...line }]))
@@ -243,7 +243,7 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
   // Canvas actions complete themselves as soon as the design satisfies them.
   useEffect(() => {
     if (!stored || !step) return
-    if ((step.t === 'place' || step.t === 'connect' || step.t === 'disconnect') && isActionDone(step, run.design)) {
+    if (isCanvasAction(step) && isActionDone(step, run.design)) {
       finishStep(run.design)
     }
   }, [stored, step, run.design, finishStep])
@@ -404,6 +404,7 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
       case 'place':
       case 'connect':
       case 'disconnect':
+      case 'configure':
         return { kicker: 'Objective', body: <RichText text={step.text} /> }
       case 'simulate':
         return {
@@ -609,6 +610,7 @@ function SectionView({ lesson, sectionIndex }: { lesson: Lesson; sectionIndex: n
                 phaseLabel={view?.run.phases[view.phase].label}
                 blind={!whatIf && blind}
                 onClose={() => setInspected(null)}
+                onEdit={whatIf ? undefined : (p) => setDesign(key, setNodeProps(run.design, inspectedNode.id, p))}
                 onDelete={
                   whatIf
                     ? undefined
@@ -694,7 +696,7 @@ function expectedBlocks(section: Section): Set<BlockId> {
   const out = new Set<BlockId>(section.startDesign.nodes.map((n) => n.block))
   const add = (m: BlockMatch) => (Array.isArray(m) ? m : [m]).forEach((b) => out.add(b))
   for (const s of section.steps) {
-    if (s.t === 'place') out.add(s.block)
+    if (s.t === 'place' || s.t === 'configure') out.add(s.block)
     if (s.t === 'connect' || s.t === 'disconnect') {
       add(s.from)
       add(s.to)
@@ -772,7 +774,7 @@ function whyBroke(run: SimRun, label: (id: string) => string) {
 
 const labelOf = (design: Design, id: string) => {
   const n = design.nodes.find((x) => x.id === id)
-  return n ? `${BLOCKS[n.block].short} (${id})` : id
+  return n ? `${n.label || BLOCKS[n.block].short} (${id})` : id
 }
 
 /** One bubble per block; earlier entries win. */

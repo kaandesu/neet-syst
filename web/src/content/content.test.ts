@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { autoPlay, simulateWhatIf } from '@/engine/lesson/runner'
 import { lintDesign } from '@/engine/mentor/lint'
 import type { BlockId } from '@/engine/types'
-import { CHAPTERS, CHECKPOINTS } from './index'
+import { CHAPTERS, CHECKPOINTS, lessonById } from './index'
 
 describe.each(CHAPTERS)('$title', (chapter) => {
   const unlockedBefore = new Map<string, Set<BlockId>>()
@@ -98,5 +98,13 @@ describe('lesson ids', () => {
   it('are unique', () => {
     const ids = [...CHAPTERS.flatMap((c) => [...c.lessons, ...(c.incidents ?? [])]), ...Object.values(CHECKPOINTS)].map((l) => l.id)
     expect(new Set(ids).size).toBe(ids.length)
+  })
+})
+
+describe('services', () => {
+  it('sizing up handles the rush but dies with its one box', () => {
+    const level = lessonById('services')!.sections.find((s) => s.kind === 'level')!
+    const runs = autoPlay(level, 1).filter((e) => e.step.t === 'simulate')
+    expect(runs.map((e) => e.passed)).toEqual([false, true, false, false])
   })
 })
