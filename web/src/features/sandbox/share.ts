@@ -1,7 +1,8 @@
 import { BLOCKS } from '@/content/blocks'
 import { MAX_LABEL, nextEdgeId } from '@/engine/lesson/runner'
 import { wouldCreateCycle } from '@/engine/sim/solver'
-import type { BlockId, Design, Tier } from '@/engine/types'
+import { METHODS } from '@/engine/api/rules'
+import type { BlockId, Design, Endpoint, HttpMethod, Tier } from '@/engine/types'
 import { DEFAULT_TRAFFIC, type Traffic } from './traffic'
 
 /** What a share link carries. Kills and challenge progress stay with the person who made it. */
@@ -15,7 +16,12 @@ type Packed = {
   n: [id: string, block: BlockId, x: number, y: number, flags?: number, label?: string, tier?: Tier][]
   e: [from: string, to: string][]
   t: Partial<Traffic>
+  /** Service endpoints by node id: method, path, promise bits. */
+  a?: Record<string, [method: HttpMethod, path: string, bits: number][]>
 }
+
+const API_FLAGS = ['idempotencyKey', 'paginated', 'auth', 'rateLimited'] as const
+const MAX_ENDPOINTS = 12
 
 const LOCKED = 1
 const STICKY = 2
@@ -46,6 +52,11 @@ export function encodeShare({ design, traffic }: Shared): string {
     e: design.edges.map((e) => [e.from, e.to]),
     t: traffic,
   }
+  const withApi = design.nodes.filter((n) => n.api?.length)
+  if (withApi.length)
+    packed.a = Object.fromEntries(
+      withApi.map((n) => [n.id, n.api!.map((e) => [e.method, e.path, API_FLAGS.reduce((b, f, i) => (e[f] ? b | (1 << i) : b), 0)] as [HttpMethod, string, number])]),
+    )
   return toBase64Url(JSON.stringify(packed))
 }
 
@@ -85,6 +96,23 @@ export function decodeShare(code: string): Shared | null {
     if (!ids.has(from) || !ids.has(to) || from === to) return null
     if (design.edges.some((e) => e.from === from && e.to === to) || wouldCreateCycle(design, from, to)) return null
     design.edges.push({ id: nextEdgeId(design, from, to), from, to })
+  }
+
+  for (const [id, rows] of Object.entries(p.a ?? {})) {
+    const node = design.nodes.find((n) => n.id === id)
+    if (!node || node.block !== 'service' || !Array.isArray(rows)) return null
+    const api: Endpoint[] = []
+    for (const row of rows.slice(0, MAX_ENDPOINTS)) {
+      if (!Array.isArray(row)) return null
+      const [method, path, bits] = row
+      if (!METHODS.includes(method) || typeof path !== 'string' || path.length > 80) return null
+      const e: Endpoint = { method, path }
+      API_FLAGS.forEach((f, i) => {
+        if (typeof bits === 'number' && bits & (1 << i)) e[f] = true
+      })
+      api.push(e)
+    }
+    if (api.length) node.api = api
   }
 
   const t = p.t ?? {}

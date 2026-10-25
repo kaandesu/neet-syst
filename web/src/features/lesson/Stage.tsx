@@ -21,7 +21,7 @@ export interface FeedItem {
 }
 
 /** Steps that stop the lesson until the learner answers them. They open as a card over the canvas. */
-export const isBlocking = (s: Step | undefined) => !!s && (s.t === 'concept' || s.t === 'reason' || s.t === 'fork' || s.t === 'requirements' || s.t === 'estimate')
+export const isBlocking = (s: Step | undefined) => !!s && (s.t === 'concept' || s.t === 'reason' || s.t === 'fork' || s.t === 'requirements' || s.t === 'estimate' || s.t === 'api')
 
 const CHIP_ICON: Record<ChipId, typeof Eye> = { why: CircleHelp, show: Eye, stuck: LifeBuoy }
 
@@ -146,6 +146,7 @@ const BLOCKING_LABEL: Record<string, string> = {
   fork: 'Design decision',
   requirements: 'Scope the problem',
   estimate: 'Estimate',
+  api: 'Design the API',
 }
 
 /** A blocking step, centred over a dimmed canvas so it can't be missed. */
@@ -177,7 +178,7 @@ export function QuestionModal({
         initial={{ scale: 0.92, y: 12 }}
         animate={{ scale: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-        className="vn-modal flex max-h-full w-full max-w-xl flex-col overflow-hidden rounded-3xl bg-surface shadow-card"
+        className={cn('vn-modal flex max-h-full w-full flex-col', step.t === 'api' ? 'max-w-3xl' : 'max-w-xl', 'overflow-hidden rounded-3xl bg-surface shadow-card')}
       >
         <div className={cn('vn-modal-head flex items-center gap-3 px-5 py-3', concept ? 'bg-good-soft' : 'bg-accent-soft')}>
           <Portrait speaker={speaker} mood={mood} size={52} />

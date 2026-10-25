@@ -125,6 +125,8 @@ export interface Chapter {
   /** Growth milestones on the map: the user count reached when `lesson` starts. */
   arc?: { lesson: string; label: string }[]
   lessons: Lesson[]
+  /** Chapter id that must be finished (or tested out of) before this one opens. */
+  requires?: string
   /** Optional review drills that appear on the map after their `due` lesson. */
   incidents?: Lesson[]
 }

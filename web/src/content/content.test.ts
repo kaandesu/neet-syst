@@ -1,16 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import { autoPlay, simulateWhatIf } from '@/engine/lesson/runner'
+import { evaluateApi } from '@/engine/api/rules'
 import { lintDesign } from '@/engine/mentor/lint'
 import type { BlockId } from '@/engine/types'
 import { CHAPTERS, CHECKPOINTS, lessonById } from './index'
 
-describe.each(CHAPTERS)('$title', (chapter) => {
-  const unlockedBefore = new Map<string, Set<BlockId>>()
+// Chapters play in order, so a later chapter may use every block an earlier one unlocked.
+const unlockedBefore = new Map<string, Set<BlockId>>()
+{
   const acc = new Set<BlockId>()
-  for (const l of chapter.lessons) {
+  for (const l of CHAPTERS.flatMap((c) => c.lessons)) {
     unlockedBefore.set(l.id, new Set(acc))
     l.unlocks.forEach((b) => acc.add(b))
   }
+}
+
+describe.each(CHAPTERS)('$title', (chapter) => {
 
   for (const lesson of chapter.lessons) {
     describe(lesson.title, () => {
@@ -22,9 +27,17 @@ describe.each(CHAPTERS)('$title', (chapter) => {
       for (const section of lesson.sections) {
         it(`${section.kind}: "${section.title}" plays through as authored`, () => {
           // The first fork option is the "recommended" branch and must pass end to end.
-          for (const entry of autoPlay(section, 0)) {
+          const log = autoPlay(section, 0)
+          for (const entry of log) {
             const step = entry.step
             if (step.t === 'place') expect(section.palette, `place ${step.block}`).toContain(step.block)
+            if (step.t === 'api') {
+              const before = entry.stepIndex === 0 ? section.startDesign : log[log.indexOf(entry) - 1].design
+              const api = (d: typeof before) => d.nodes.find((n) => n.id === step.node)?.api ?? []
+              expect(before.nodes.some((n) => n.id === step.node && n.block === 'service'), `api step targets a service`).toBe(true)
+              expect(evaluateApi(api(before), step.rules).every((r) => r.pass), `${section.title}: api step starts unsolved`).toBe(false)
+              expect(evaluateApi(api(entry.design), step.rules).filter((r) => !r.pass).map((r) => r.label), `${section.title}: api solution`).toEqual([])
+            }
             if (step.t !== 'simulate') continue
             const where = `${section.title} step ${entry.stepIndex} (${step.text})`
             if (step.expect === 'pass') expect(entry.passed, `${where} should pass`).toBe(true)
@@ -36,7 +49,7 @@ describe.each(CHAPTERS)('$title', (chapter) => {
   }
 })
 
-describe.each(CHAPTERS)('$title incidents', (chapter) => {
+describe.each(CHAPTERS.filter((c) => c.incidents?.length))('$title incidents', (chapter) => {
   const unlockedBy = new Map<string, Set<BlockId>>()
   const acc = new Set<BlockId>()
   for (const l of chapter.lessons) {

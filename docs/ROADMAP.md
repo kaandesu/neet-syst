@@ -10,9 +10,9 @@ Each step builds on the one before it, so case studies come last.
 
 1. **Story page redesign:** each chapter is a startup growth arc (100 → 1M users). Lessons become episodes, listed next to a sticky detail panel that shows the hook, the blocks it unlocks, its sections and a Start button.
 2. **Custom named services (done):** any block can be renamed from the Inspector (`DNode.label`). A generic `service` block has a machine size (`DNode.tier`: Small 500, Medium 1,000, Large 4,000 units/s). The "Services and machine size" episode (after stateless) unlocks it and teaches sizing up vs scaling out. Lessons check names and sizes with the `configure` step.
-3. **API design, in two parts:**
-   - A short chapter on REST resources, idempotency, pagination, versioning and rate limits, with a new `api` step for writing endpoints, graded by rules.
-   - An "API" tab on named services (`DNode.api: Endpoint[]`), checked by goals such as "POST /urls is idempotent".
+3. **API design (done):** Chapter 2, "Design the API", opens after Chapter 1. Its episodes are resources and versioning, idempotency, and pagination plus rate limits.
+   - Services carry endpoints (`DNode.api: Endpoint[]`), edited from the Inspector's API button or an `api` lesson step. Both are graded by rules in `engine/api/rules.ts`.
+   - Endpoints change the simulation: `botRps` traffic is turned away only when every endpoint is rate limited, and `retryShare` writes run twice unless every POST takes an Idempotency-Key (the `noDuplicates` goal). An `api` goal checks one rule on one service.
 4. **Case studies (`/cases`):** step-by-step worked problems in interview order (requirements → estimates → API → high-level design → deep dives). At each decision the learner commits to a choice, then a `reveal` step shows the expert's pick and reasoning next to theirs. They use named services and API steps.
 
 ## 1. PocketBase backend

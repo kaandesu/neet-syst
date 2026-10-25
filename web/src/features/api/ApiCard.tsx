@@ -41,7 +41,7 @@ export function ApiCard({
   }
 
   return (
-    <Bubble tone={active ? 'task' : 'mentor'} className="w-full max-w-2xl">
+    <Bubble tone={active ? 'task' : 'mentor'} className="w-full">
       <div className="mb-2 text-[11px] font-bold tracking-wider text-accent uppercase">API · {serviceName}</div>
       <div className="font-semibold">
         <RichText text={step.text} />

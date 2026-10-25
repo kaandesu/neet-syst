@@ -123,16 +123,22 @@ export function lessonStatus(
   index: number,
   completed: Record<string, SectionKind[]>,
   devMode = false,
+  /** False while the chapter this one `requires` is unfinished. */
+  chapterOpen = true,
 ): LessonStatus {
   const lesson = chapter.lessons[index]
   const done = completed[lesson.id] ?? []
   if (lesson.sections.every((s) => done.includes(s.kind))) return 'done'
   if (done.length) return 'in-progress'
-  if (index === 0) return 'available'
+  if (index === 0) return devMode || chapterOpen ? 'available' : 'locked'
   const prev = chapter.lessons[index - 1]
   const prevDone = completed[prev.id] ?? []
   return devMode || prev.sections.every((s) => prevDone.includes(s.kind)) ? 'available' : 'locked'
 }
+
+/** Every lesson in the chapter is done. */
+export const chapterDone = (chapter: Chapter, completed: Record<string, SectionKind[]>) =>
+  chapter.lessons.every((l) => l.sections.every((s) => (completed[l.id] ?? []).includes(s.kind)))
 
 export type IncidentStatus = 'locked' | 'waiting' | 'done'
 

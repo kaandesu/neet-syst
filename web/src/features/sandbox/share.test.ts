@@ -33,6 +33,15 @@ describe('share links', () => {
     expect(decodeShare(encodeShare({ design: named, traffic }))?.design).toEqual(named)
   })
 
+  it('keep a service API', () => {
+    const withApi: Design = {
+      nodes: [{ id: 'svc', block: 'service', x: 0, y: 0, api: [{ method: 'POST', path: '/v1/urls', idempotencyKey: true, rateLimited: true }, { method: 'GET', path: '/v1/urls/{code}' }] }],
+      edges: [],
+    }
+    expect(decodeShare(encodeShare({ design: withApi, traffic }))?.design).toEqual(withApi)
+    expect(decodeShare(pack({ v: 1, n: [['a', 'web-server', 0, 0]], e: [], t: {}, a: { a: [['GET', '/x', 0]] } }))).toBeNull()
+  })
+
   it('drop a tier on anything but a service', () => {
     const d = decodeShare(pack({ v: 1, n: [['a', 'web-server', 0, 0, 0, '', 'l'], ['b', 'service', 0, 0, 0, '', 'xl']], e: [], t: {} }))
     expect(d?.design.nodes).toEqual([

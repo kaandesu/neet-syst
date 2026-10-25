@@ -28,6 +28,9 @@ A capstone replaces the guided steps with `requirements` and `estimate` steps, t
 
 - **Naming and sizing.** A `configure` step asks the learner to rename a block (`label`: the suggested name; any name counts) or set a service's machine size (`tier`; an unsized service counts as Medium). Fork patches can set `label` and `tier` through `setProps`.
 
+- **API steps.** An `api` step opens an endpoint editor for the service `node` and grades it against `rules` (`has`, `nouns`, `plural`, `versioned`, `idempotent`, `paginated`, `auth`, `rateLimited`). Give it a `solution`; the content test checks that the step starts unsolved and the solution passes. Use phase `botRps` / `retryShare` with the `noDuplicates` goal to make API mistakes visible in a `simulate` step.
+- **Later chapters** set `requires` to the chapter that must be finished first, and may use any block an earlier chapter unlocked.
+
 ## Active learning hooks
 
 - **Predict before Run.** Every `simulate` step with `expect: 'fail'` asks the learner which part breaks first. This happens automatically when the solver finds a bottleneck. Set `predict: false` to skip it, for example when the failure is purely about latency.

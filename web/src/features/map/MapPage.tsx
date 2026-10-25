@@ -11,7 +11,7 @@ import type { Chapter, Lesson } from '@/engine/lesson/types'
 import type { BlockId } from '@/engine/types'
 import { BlockDrawer } from '@/features/collection/BlockDrawer'
 import { cn } from '@/lib/cn'
-import { incidentStatus, lessonStatus, useProgress, type IncidentStatus, type LessonStatus } from '@/store/progress'
+import { chapterDone, incidentStatus, lessonStatus, useProgress, type IncidentStatus, type LessonStatus } from '@/store/progress'
 import { shiftProgressOf, useShifts } from '@/store/shifts'
 import { BlockIcon } from '@/ui/BlockIcon'
 
@@ -41,10 +41,13 @@ const minutesOf = (l: Lesson) => l.minutes ?? l.sections.length * 5
 function ChapterStory({ chapter, number }: { chapter: Chapter; number: number }) {
   const completed = useProgress((s) => s.completed)
   const devMode = useProgress((s) => s.devMode)
+  const testedOut = useProgress((s) => s.testedOut)
+  const before = CHAPTERS.find((c) => c.id === chapter.requires)
+  const open = !before || testedOut.includes(before.id) || chapterDone(before, completed)
   const episodes: Episode[] = chapter.lessons.map((lesson, index) => ({
     lesson,
     index,
-    status: lessonStatus(chapter, index, completed, devMode),
+    status: lessonStatus(chapter, index, completed, devMode, open),
     done: completed[lesson.id] ?? [],
   }))
   const doneCount = episodes.filter((e) => e.status === 'done').length
@@ -77,6 +80,12 @@ function ChapterStory({ chapter, number }: { chapter: Chapter; number: number })
           </Link>
         )}
       </ChapterBanner>
+
+      {!open && !devMode && before && (
+        <div className="mt-4 flex items-center gap-1.5 text-[13px] font-semibold text-muted">
+          <Lock size={14} /> Opens after “{before.title}”.
+        </div>
+      )}
 
       {waiting > 0 && (
         <div className="mt-4 flex items-center gap-1.5 text-[13px] font-semibold text-warn">

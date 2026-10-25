@@ -1,4 +1,4 @@
-import { Activity, Trash2, X } from 'lucide-react'
+import { Activity, Braces, Trash2, X } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useState, type ReactNode } from 'react'
 import { BLOCKS } from '@/content/blocks'
@@ -8,6 +8,7 @@ import { capacityOf, SPECS, TIER_CAPACITY } from '@/engine/sim/specs'
 import type { DNode, NodeResult, NodeStatus, Tier } from '@/engine/types'
 import { cn } from '@/lib/cn'
 import { BlockIcon } from '@/ui/BlockIcon'
+import { ApiDialog } from '@/features/api/ApiDialog'
 
 const TONE: Record<NodeStatus, string> = {
   idle: 'bg-line',
@@ -38,12 +39,13 @@ export function Inspector({
   /** Shows a remove button; left out for read-only canvases. Locked blocks never get one. */
   onDelete?: () => void
   /** Rename the block or resize a service; left out for read-only canvases. */
-  onEdit?: (props: Partial<Pick<DNode, 'label' | 'tier'>>) => void
+  onEdit?: (props: Partial<Pick<DNode, 'label' | 'tier' | 'api'>>) => void
   /** Extra buttons under the details (the sandbox uses this for chaos). */
   actions?: ReactNode
 }) {
   const info = BLOCKS[node.block]
   const unlimited = SPECS[node.block].capacity >= 1e9
+  const [apiOpen, setApiOpen] = useState(false)
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -80,6 +82,19 @@ export function Inspector({
       </div>
 
       {node.block === 'service' && onEdit && <TierPicker value={node.tier ?? 'm'} onChange={(tier) => onEdit({ tier })} />}
+      {node.block === 'service' && (onEdit || node.api?.length) && (
+        <button
+          onClick={() => setApiOpen(true)}
+          className="mt-2 flex w-full items-center gap-2 rounded-xl bg-surface-2 px-3 py-2 text-left text-[13px] font-semibold hover:ring-2 hover:ring-accent/40"
+        >
+          <Braces size={15} className="text-accent" />
+          <span className="flex-1">API</span>
+          <span className="font-mono text-[11px] text-muted">
+            {node.api?.length ?? 0} endpoint{node.api?.length === 1 ? '' : 's'}
+          </span>
+        </button>
+      )}
+      {apiOpen && <ApiDialog name={node.label || info.name} api={node.api ?? []} onChange={onEdit && ((api) => onEdit({ api }))} onClose={() => setApiOpen(false)} />}
 
       {blind ? (
         <div className="mt-3 flex gap-2 rounded-xl bg-surface-2 px-3 py-2 text-[13px] text-muted">
